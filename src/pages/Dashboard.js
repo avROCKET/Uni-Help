@@ -7,6 +7,8 @@ import UserDashboard from '../components/UserDashboard';
 import CompanyDashboard from '../components/CompanyDashboard'; 
 import PendingDashboard from '../components/PendingDashboard'; 
 import RejectedDashboard from '../components/RejectedDashboard'; 
+import SupportDashboard from '../components/SupportDashboard.js';
+import ReviewerDashboard from '../components/ReviewerDashboard.js';
 
 function Dashboard() {
   const { user } = useContext(AuthContext); 
@@ -50,6 +52,10 @@ function Dashboard() {
         return <PendingDashboard />;
       case 'rejected':
         return <RejectedDashboard />;
+      case 'support':
+        return <SupportDashboard />;
+      case 'reviewer':
+        return <ReviewerDashboard />;
       default:
         return <p>Invalid role</p>;
     }
