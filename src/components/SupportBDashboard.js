@@ -6,7 +6,7 @@ function SupportDashboard() {
 
   return (
     <div>
-      <h1>SupportDashboard works</h1>
+      <h1>SupportDashboard Level 2 works</h1>
     </div>
   );
 }

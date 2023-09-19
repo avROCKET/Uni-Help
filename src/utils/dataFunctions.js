@@ -8,9 +8,9 @@ export const getUserData = async (uid) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
-      return userDoc.data();
+      return { uid, ...userDoc.data() }; // include uid in the returned data
     } else {
-      console.error("firebase missing document");
+      console.error("Firebase missing document");
       return null;
     }
   } catch (error) {
@@ -69,6 +69,17 @@ export const deleteUser = async (userId) => {
   try {
     const userDoc = doc(db, 'users', userId);
     await deleteDoc(userDoc);
+  } catch (error) {
+    console.error('Error:', error);
+    throw new Error('Error');
+  }
+};
+
+export const getCompanyEmployees = async (companyId) => {
+  try {
+    const q = query(collection(db, 'users'), where('companyId', '==', companyId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error('Error:', error);
     throw new Error('Error');

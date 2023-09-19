@@ -7,7 +7,9 @@ import UserDashboard from '../components/UserDashboard';
 import CompanyDashboard from '../components/CompanyDashboard'; 
 import PendingDashboard from '../components/PendingDashboard'; 
 import RejectedDashboard from '../components/RejectedDashboard'; 
-import SupportDashboard from '../components/SupportDashboard.js';
+import SupportADashboard from '../components/SupportADashboard.js';
+import SupportBDashboard from '../components/SupportBDashboard.js';
+import SupportCDashboard from '../components/SupportCDashboard.js';
 import ReviewerDashboard from '../components/ReviewerDashboard.js';
 
 function Dashboard() {
@@ -52,8 +54,12 @@ function Dashboard() {
         return <PendingDashboard />;
       case 'rejected':
         return <RejectedDashboard />;
-      case 'support':
-        return <SupportDashboard />;
+      case 'supporta':
+        return <SupportADashboard />;
+      case 'supportb':
+        return <SupportBDashboard />;
+      case 'supportc':
+        return <SupportCDashboard />;
       case 'reviewer':
         return <ReviewerDashboard />;
       default:

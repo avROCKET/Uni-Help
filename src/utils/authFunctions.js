@@ -4,7 +4,8 @@ import { auth } from '../firebase.js';
 
 const db = getFirestore();
 
-export const register = async (email, password, name, role = 'user') => {
+export const register = async (email, password, name, role = 'user', autoLogin = true, companyId = null) => {
+  console.log('Parameters received:', { email, password, name, role, autoLogin, companyId });
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -13,14 +14,25 @@ export const register = async (email, password, name, role = 'user') => {
       role = 'pending';
     }
 
-    await setDoc(doc(db, 'users', user.uid), {
+    const userData = {
       name: name,
       email: email,
       role: role,
-    });
+    };
+
+    if (companyId) {
+      userData.companyId = companyId;
+    }
+    console.log('UserData before writing to Firestore:', userData);
+    await setDoc(doc(db, 'users', user.uid), userData);
 
     if (role === 'pending') {
       return { success: true, message: "pending admin approval" };
+    }
+
+    if (!autoLogin) {
+      await signOut(auth);
+      return { success: true, message: "User registered successfully, but not logged in" };
     }
 
     return userCredential;
@@ -29,6 +41,8 @@ export const register = async (email, password, name, role = 'user') => {
     throw new Error("Error");
   }
 };
+
+
 
 export const login = async (email, password) => {
   try {
