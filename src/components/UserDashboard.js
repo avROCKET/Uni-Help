@@ -1,14 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { doc, updateDoc, addDoc, getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, updateDoc, addDoc, getFirestore, collection, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
+import Tickets from './Tickets';
+import ChatModal from './ChatModal';
 
 const db = getFirestore();
 
 const UserDashboard = () => {
   const [companies, setCompanies] = useState([]);
   const [userId, setUserId] = useState(null);
-  const [formState, setFormState] = useState({ companyID: '', subject: '', description: '' });
-  const [tickets, setTickets] = useState([]);
+  const [formState, setFormState] = useState({ companyId: '', subject: '', description: '' });  const [tickets, setTickets] = useState([]);
+  const [activeChatMessages, setActiveChatMessages] = useState([]);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [isModalOpen, setModalOpen] = useState(false);
+
+
+  const fetchTicketsAndListenForUpdates = () => {
+    if (userId) {
+      const ticketsQuery = query(collection(db, 'tickets'), where('userId', '==', userId), where('isVisible', '==', true));
+      onSnapshot(ticketsQuery, (querySnapshot) => {
+        const ticketsArray = [];
+        querySnapshot.forEach((doc) => {
+          ticketsArray.push({ id: doc.id, ...doc.data() });
+        });
+        setTickets(ticketsArray);
+      });
+    }
+  };
+
+  const handleSelectTicket = (ticketId) => {
+    setSelectedTicket(ticketId);
+  };  
+  
+  useEffect(() => {
+    fetchTicketsAndListenForUpdates();
+  }, [userId]);
+
+  const handleTicketClick = (ticketId) => {
+  setModalOpen(true);
+  
+  const messagesQuery = query(collection(doc(db, 'tickets', ticketId), 'messages'), orderBy('timestamp', 'desc'));
+  
+  onSnapshot(messagesQuery, (querySnapshot) => {
+    const messages = [];
+    querySnapshot.forEach((doc) => {
+      messages.push(doc.data());
+    });
+    setActiveChatMessages(messages);
+    console.log("Active Chat Messages:", messages);
+  });
+};
+
+useEffect(() => {
+  console.log("selectedTicket changed:", selectedTicket);
+}, [selectedTicket]);
 
   const fetchCompanies = async () => {
     try {
@@ -19,6 +64,9 @@ const UserDashboard = () => {
         companiesArray.push({ id: doc.id, ...doc.data() });
       });
       setCompanies(companiesArray);
+        if (companiesArray.length > 0) {
+      setFormState(prevState => ({ ...prevState, companyId: companiesArray[0].id }));
+}
     } catch (error) {
       console.error('Error fetching companies: ', error);
     }
@@ -38,51 +86,32 @@ const UserDashboard = () => {
       }
     });
     
-    // Cleanup the subscription on component unmount
     return () => unsubscribe();
   }, []);
 
-  const fetchTickets = async () => {
-    try {
-      if (userId) {
-        const q = query(collection(db, 'tickets'), where('userId', '==', userId), where('isVisible', '==', true));
-        const querySnapshot = await getDocs(q);
-        const ticketsArray = [];
-        querySnapshot.forEach((doc) => {
-          ticketsArray.push({ id: doc.id, ...doc.data() });
-        });
-        setTickets(ticketsArray);
-      }
-    } catch (error) {
-      console.error('Error fetching tickets: ', error);
-    }
-  };
-  
-  useEffect(() => {
-    fetchTickets();
-  }, [userId]);
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormState({ ...formState, [name]: value });
+    console.log("Setting form state:", name, value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     try {
-      // Create a new ticket in the Firestore database
       const ticketData = {
-      userId: userId,  // Now using the actual user ID
-      companyId: formState.companyID,
-      subject: formState.subject,
-      description: formState.description,
-      status: 'open',
-      created: new Date(),
-      isVisible: true,
-    };
+        userId: userId,
+        companyId: formState.companyId,
+        subject: formState.subject,
+        description: formState.description,
+        status: 'open',
+        created: new Date(),
+        isVisible: true,
+      };
   
-      await addDoc(collection(db, 'tickets'), ticketData);
+      console.log("ticketData before sending:", ticketData);
+      const ticketRef = await addDoc(collection(db, 'tickets'), ticketData);
       
       alert('Ticket submitted successfully');
     } catch (error) {
@@ -90,13 +119,12 @@ const UserDashboard = () => {
       alert('Error submitting ticket');
     }
   };
+  
 
   const handleCloseTicket = async (ticketId) => {
     try {
       const ticketRef = doc(db, 'tickets', ticketId);
       await updateDoc(ticketRef, { status: 'closed' });
-      // fetch tickets again to reflect the change in UI
-      fetchTickets();
     } catch (error) {
       console.error('Error closing ticket:', error);
     }
@@ -106,21 +134,36 @@ const UserDashboard = () => {
     try {
       const ticketRef = doc(db, 'tickets', ticketId);
       await updateDoc(ticketRef, { isVisible: false });
-      // fetch tickets again to reflect the change in UI
-      fetchTickets();
     } catch (error) {
       console.error('Error hiding ticket:', error);
     }
   };
-
+  
+  const sendMessageToTicket = async (messageContent) => { // having an issue here.... message content not going through to fire base because selected ticket is null... idk why.
+    console.log("Attempting to send message:", messageContent);
+    console.log('selected ticket id:', selectedTicket);
+    if (selectedTicket) {
+      try {
+        await addDoc(collection(doc(db, 'tickets', selectedTicket), 'messages'), {
+          content: messageContent,
+          timestamp: new Date(),
+          senderId: userId,
+        });
+        console.log('selected ticket id:', selectedTicket);
+      } catch (error) {
+        console.error('Error sending message:', error);
+        
+      }
+    }
+  };
+  
   return (
     <div>
       <h1>User Dashboard</h1>
-      
       <form onSubmit={handleSubmit}>
       <label>
         Company
-        <select name="companyID" value={formState.companyID} onChange={handleInputChange}>
+        <select name="companyId" value={formState.companyId} onChange={handleInputChange}>
           {companies.map((company) => (
             <option key={company.id} value={company.id}>
               {company.name}
@@ -141,16 +184,23 @@ const UserDashboard = () => {
         <br />
         <button type="submit">Submit Ticket</button>
       </form>
-      <h2>Your Tickets</h2>
-        <ul>
-          {tickets.map((ticket) => (
-            <li key={ticket.id}>
-              {ticket.subject} - {ticket.status}
-              <button onClick={() => handleCloseTicket(ticket.id)}>Close</button>
-              <button onClick={() => handleHideTicket(ticket.id)}>Hide</button>
-            </li>
-          ))}
-        </ul>
+      <Tickets
+        tickets={tickets}
+        onTicketClick={handleTicketClick}
+        onCloseTicket={handleCloseTicket}
+        onHideTicket={handleHideTicket}
+        selectedTicket={selectedTicket}
+      />
+      {activeChatMessages.map((message, index) => (
+        <div key={index}>{message.content}</div>
+        ))}
+      <ChatModal // usin chatmodal for users and support. reviewers can only view chats so they will use regual modal screen, which i will update later 
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        messages={activeChatMessages}
+        canSendMessage={true} 
+        onSendMessage={sendMessageToTicket}
+      />
     </div>
   );
 }

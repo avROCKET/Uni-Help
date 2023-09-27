@@ -38,7 +38,7 @@ export const register = async (email, password, name, role = 'user', autoLogin =
     return userCredential;
   } catch (error) {
     console.error("Error:", error);
-    throw new Error("Error");
+    throw error;
   }
 };
 
