@@ -13,6 +13,7 @@ const ReviewerDashboard = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
   const [activeChatMessages, setActiveChatMessages] = useState([]);
+  const [role, setRole] = useState(null);
 
 
   useEffect(() => {
@@ -26,12 +27,14 @@ const ReviewerDashboard = () => {
     });
   }, []);
 
+
   useEffect(() => {
     if (currentUser) {
       const userRef = doc(db, 'users', currentUser.uid);
       getDoc(userRef).then(docSnapshot => {
         if (docSnapshot.exists()) {
           const userData = docSnapshot.data();
+          setRole(userData.role);
           const userCompanyId = userData.companyId;
 
           const ticketsQuery = query(collection(db, 'tickets'), where('companyId', '==', userCompanyId));
@@ -81,6 +84,7 @@ const ReviewerDashboard = () => {
       <Tickets
           tickets={tickets}
           onTicketClick={handleTicketClick}
+          onAssignTicket={handleAssignTicket}
       />
       <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
       <h2>Messages</h2>

@@ -9,7 +9,8 @@ const db = getFirestore();
 const UserDashboard = () => {
   const [companies, setCompanies] = useState([]);
   const [userId, setUserId] = useState(null);
-  const [formState, setFormState] = useState({ companyId: '', subject: '', description: '' });  const [tickets, setTickets] = useState([]);
+  const [formState, setFormState] = useState({ companyId: '', subject: '', description: '' });  
+  const [tickets, setTickets] = useState([]);
   const [activeChatMessages, setActiveChatMessages] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -26,11 +27,7 @@ const UserDashboard = () => {
         setTickets(ticketsArray);
       });
     }
-  };
-
-  const handleSelectTicket = (ticketId) => {
-    setSelectedTicket(ticketId);
-  };  
+  }; 
   
   useEffect(() => {
     fetchTicketsAndListenForUpdates();
@@ -47,7 +44,9 @@ const UserDashboard = () => {
       messages.push(doc.data());
     });
     setActiveChatMessages(messages);
-    console.log("Active Chat Messages:", messages);
+    setSelectedTicket(ticketId);
+    console.log("Active Chat Messages:", messages)
+    console.log("selectedTicket: ", selectedTicket);
   });
 };
 
@@ -95,6 +94,7 @@ useEffect(() => {
     setFormState({ ...formState, [name]: value });
     console.log("Setting form state:", name, value);
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
