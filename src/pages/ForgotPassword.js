@@ -22,23 +22,41 @@ function ForgotPassword() {
   };
 
   return (
-    <div>
-      <h2>Forgot Password</h2>
-      <form onSubmit={handleSubmit}>
-        <input 
-          type="email" 
-          placeholder="Enter your email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          required 
-        />
-        <button type="submit">Send Email</button>
-        <button type="button" onClick={() => navigate('/login')}>Back to Login</button>
-      </form>
-      {message && <p>{message}</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div className="background-video-container">
+      <video autoPlay loop muted playsInline className="background-video">
+        <source src="/assets/video1.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+  
+      <div className="centered-content-container">
+        <div className="logo-container">
+          <img src="/assets/logo.png" alt="Company Logo" className="company-logo" onClick={() => navigate('/')} />
+        </div>
+  
+        <div>
+          <h2 className="title">Forgot Password</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="input-container">
+              <input 
+                type="email" 
+                placeholder=" "
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+              />
+              <label>Email</label>
+            </div>
+            <div className="button-row">
+              <button className="material-button" type="submit">Send Email</button>
+              <button className="material-button" type="button" onClick={() => navigate('/login')}>Back to Login</button>
+            </div>
+          </form>
+          {message && <p className="message">{message}</p>}
+          {error && <p className="error-message">{error}</p>}
+        </div>
+      </div>
     </div>
   );
-}
+}  
 
 export default ForgotPassword;

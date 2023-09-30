@@ -1,38 +1,167 @@
-.App {
+/* homepage styles */
+.homepage-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+  animation: fadeIn 3s;
+}
+
+.homepage-login-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  color: #fff;
+  background: linear-gradient(90deg, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.homepage-login-button:hover {
+  transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+  }
+  to {
+      opacity: 1;
+  }
+}
+
+/* live background */
+.background-video-container {
+  position: fixed; 
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: -1; 
+}
+
+.background-video {
+  position: absolute; 
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -1; 
+  transform: translateX(-50%) translateY(-50%);
+}
+
+
+.centered-content-container {
+  position: absolute; 
+  top: 50%; 
+  left: 50%;
+  width: 50%; 
+  max-width: 500px;
+  transform: translate(-50%, -50%); 
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.7); 
+  border-radius: 8px;
+  z-index: 1; 
+  animation: fadeIn 3s;
+}
+
+.background-video-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2); 
+  z-index: 0; 
+}
+
+
+
+/* forgot password, login and register pages styles */
+.logo-container {
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+}
+.company-logo {
+  cursor: pointer;
+  transform: scale(0.5);
+  margin-bottom: 20px;
+
+}
+.input-container {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+
+.input-container input {
+  width: 93%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.input-container input:focus {
+  border-color: #333;
+  outline: none;
+}
+
+.input-container input:focus + label, 
+.input-container input:not(:placeholder-shown) + label {
+  top: -8px;
+  left: 8px;
+  font-size: 12px;
+  background: white;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+.material-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  color: #fff;
+  background: linear-gradient(90deg, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.material-button:hover {
+  transform: scale(1.05);
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-evenly; 
+  align-items: center;
+}
+
+
+.title {
+  color: #333;
+  margin-bottom: 1em;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
+.input-container label {
+  position: absolute;
+  left: 10px; 
+  top: 8px; 
+  color: grey;
   pointer-events: none;
+  transition: transform 0.2s, color 0.2s;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}

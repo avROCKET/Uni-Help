@@ -194,7 +194,7 @@ useEffect(() => {
       {activeChatMessages.map((message, index) => (
         <div key={index}>{message.content}</div>
         ))}
-      <ChatModal // usin chatmodal for users and support. reviewers can only view chats so they will use regual modal screen, which i will update later 
+      <ChatModal // using chatmodal for users and support. reviewers can only view chats so they will use regual modal screen, which i will update later 
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
         messages={activeChatMessages}
