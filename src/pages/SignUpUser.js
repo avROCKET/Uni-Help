@@ -21,7 +21,7 @@ function SignUpUser() {
       await register(email, password, name);
       navigate('/dashboard');
     } catch (err) {
-      setError('Error.');
+      setError('Error: An account created with this email already exists.');
     }
   };
   return (
