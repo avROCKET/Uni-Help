@@ -15,7 +15,7 @@ function LoginPage() {
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError('Wrong credentials');
+      setError('The provided username and password do not match');
     }
   };
 
