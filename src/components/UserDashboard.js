@@ -191,9 +191,7 @@ useEffect(() => {
         onHideTicket={handleHideTicket}
         selectedTicket={selectedTicket}
       />
-      {activeChatMessages.map((message, index) => (
-        <div key={index}>{message.content}</div>
-        ))}
+      
       <ChatModal // using chatmodal for users and support. reviewers can only view chats so they will use regual modal screen, which i will update later 
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
