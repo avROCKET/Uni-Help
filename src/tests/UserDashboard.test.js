@@ -21,7 +21,7 @@ jest.mock('firebase/firestore', () => ({
 
 beforeEach(() => {
   getAuth.mockReturnValue({});
-  onAuthStateChanged.mockReturnValue(jest.fn()); //this is mocking the unsubscribe function
+  onAuthStateChanged.mockReturnValue(jest.fnqa()); //this is mocking the unsubscribe function
   getFirestore.mockReturnValue({});
   getDocs.mockResolvedValue({
     forEach: jest.fn()
@@ -64,7 +64,7 @@ describe('UserDashboard', () => {  //Test Suite #1
     });
   });
   
-  it('submits a ticket correctly', async () => {                         //Test #3
+  it('submits a ticket correctly', async () => {                         //Test #3 -- failing, userID and companyID not passing.
     const mockDate = new Date();
     global.Date = jest.fn(() => mockDate);
     
