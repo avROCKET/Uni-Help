@@ -81,9 +81,9 @@ describe('UserDashboard', () => {  //Test Suite #1
     addDoc.mockResolvedValueOnce({});
 
     const { getByLabelText, getByText } = render(<UserDashboard userId="testUser" companyId="company1"/>);  //props userID and companyID
-    fireEvent.change(getByLabelText(/subject/i), { target: { value: 'Test Subject' } });
-    fireEvent.change(getByLabelText(/description/i), { target: { value: 'Test Description' } });
-    fireEvent.click(getByText(/submit ticket/i));
+    fireEvent.change(getByLabelText(/subject/i), { target: { value: 'Test Subject' } });         //simulate user input
+    fireEvent.change(getByLabelText(/description/i), { target: { value: 'Test Description' } });  //simulate user input
+    fireEvent.click(getByText(/submit ticket/i));  
 
     await waitFor(() => {
       expect(addDoc).toHaveBeenCalledWith(expect.anything(), mockTicketData);
