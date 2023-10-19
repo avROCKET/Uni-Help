@@ -139,7 +139,7 @@ useEffect(() => {
     }
   };
   
-  const sendMessageToTicket = async (messageContent) => { // having an issue here.... message content not going through to fire base because selected ticket is null... idk why.
+  const sendMessageToTicket = async (messageContent) => { 
     console.log("Attempting to send message:", messageContent);
     console.log('selected ticket id:', selectedTicket);
     if (selectedTicket) {
