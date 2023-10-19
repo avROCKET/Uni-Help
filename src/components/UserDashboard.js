@@ -187,7 +187,7 @@ useEffect(() => {
       <Tickets
         tickets={tickets}
         onTicketClick={handleTicketClick}
-        onCloseTicket={handleCloseTicket}
+        onCloseTicket={handleCloseTicket} //if close, show open
         onHideTicket={handleHideTicket}
         selectedTicket={selectedTicket}
       />

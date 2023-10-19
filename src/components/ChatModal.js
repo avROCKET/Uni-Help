@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Modal from './Modal';
 
-const ChatModal = ({ isOpen, onClose, messages, canSendMessage, onSendMessage }) => {
+const ChatModal = ({ isOpen, onClose, messages, canSendMessage, onSendMessage, tickets }) => {
     const [message, setMessage] = useState('');
 
     return (
@@ -13,6 +13,7 @@ const ChatModal = ({ isOpen, onClose, messages, canSendMessage, onSendMessage })
 
                 {canSendMessage && (
                     <div>
+                        <h1>Messages</h1>
                         <input 
                             type="text" 
                             value={message}

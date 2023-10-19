@@ -21,7 +21,7 @@ jest.mock('firebase/firestore', () => ({
 
 beforeEach(() => {
   getAuth.mockReturnValue({});
-  onAuthStateChanged.mockReturnValue(jest.fnqa()); //this is mocking the unsubscribe function
+  onAuthStateChanged.mockReturnValue(jest.fn()); //this is mocking the unsubscribe function
   getFirestore.mockReturnValue({});
   getDocs.mockResolvedValue({
     forEach: jest.fn()
@@ -42,7 +42,7 @@ describe(Group, () =>{(
 */
 describe('UserDashboard', () => {  //Test Suite #1
     //This test checks if the page will render successfully
-    it('renders without crashing', () => {                                 //Test #1
+    it('renders the page', () => {                                 //Test #1
     render(<UserDashboard />);       
   });
 
@@ -64,13 +64,14 @@ describe('UserDashboard', () => {  //Test Suite #1
     });
   });
   
+  
   it('submits a ticket correctly', async () => {                         //Test #3 -- failing, userID and companyID not passing.
     const mockDate = new Date();
     global.Date = jest.fn(() => mockDate);
     
     const mockTicketData = {
-      userId: 'testUser',
-      companyId: 'company1',
+      userId: 'TestUser', 
+      companyId: 'TestCompany', 
       subject: 'Test Subject',
       description: 'Test Description',
       status: 'open',
@@ -80,7 +81,7 @@ describe('UserDashboard', () => {  //Test Suite #1
 
     addDoc.mockResolvedValueOnce({});
 
-    const { getByLabelText, getByText } = render(<UserDashboard userId="testUser" companyId="company1"/>);  //props userID and companyID
+    const { getByLabelText, getByText } = render(<UserDashboard userId="TestUser" companyId="TestCompany"/>);  //props userID and companyID
     fireEvent.change(getByLabelText(/subject/i), { target: { value: 'Test Subject' } });         //simulate user input
     fireEvent.change(getByLabelText(/description/i), { target: { value: 'Test Description' } });  //simulate user input
     fireEvent.click(getByText(/submit ticket/i));  
@@ -89,6 +90,7 @@ describe('UserDashboard', () => {  //Test Suite #1
       expect(addDoc).toHaveBeenCalledWith(expect.anything(), mockTicketData);
     });
   });
+
 
 });
 

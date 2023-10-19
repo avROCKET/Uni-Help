@@ -13,11 +13,11 @@ const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onHide
                 {assignedTickets.map((ticket) => (
                     <li key={ticket.id} style={ticket.id === selectedTicket ? { backgroundColor: 'lightgray' } : {}}>
                         <span onClick={() => onTicketClick(ticket.id)} style={{ cursor: "pointer" }}>
-                            {ticket.subject} - {ticket.status} (Agent: {ticket.assignedTo})
+                        {ticket.subject} - {ticket.status} (Agent: {ticket.assignedTo})
                         </span>
                         {onAssignTicket && <button onClick={() => onAssignTicket(ticket.id)}>Re-Assign</button>}
                         {onCloseTicket && <button onClick={() => onCloseTicket(ticket.id)}>Close</button>}
-                        {onHideTicket && <button onClick={() => onHideTicket(ticket.id)}>Hide</button>}
+                        {onHideTicket && <button onClick={() => onHideTicket(ticket.id)}>Delete</button>}
                     </li>
                 ))}
             </ul>
@@ -31,7 +31,7 @@ const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onHide
                         </span>
                         {onAssignTicket && <button onClick={() => onAssignTicket(ticket.id)}>Assign</button>}
                         {onCloseTicket && <button onClick={() => onCloseTicket(ticket.id)}>Close</button>}
-                        {onHideTicket && <button onClick={() => onHideTicket(ticket.id)}>Hide</button>}
+                        {onHideTicket && <button onClick={() => onHideTicket(ticket.id)}>Delete</button>}
                     </li>
                 ))}
             </ul>
