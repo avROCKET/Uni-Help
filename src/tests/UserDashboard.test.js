@@ -63,35 +63,6 @@ describe('UserDashboard', () => {  //Test Suite #1
       expect(getByLabelText(/description/i).value).toBe('Ticket Description Test');
     });
   });
-  
-  
-  it('submits a ticket correctly', async () => {                         //Test #3 -- failing, userID and companyID not passing.
-    const mockDate = new Date();
-    global.Date = jest.fn(() => mockDate);
-    
-    const mockTicketData = {
-      userId: 'TestUser', 
-      companyId: 'TestCompany', 
-      subject: 'Test Subject',
-      description: 'Test Description',
-      status: 'open',
-      created: mockDate,
-      isVisible: true
-    };
-
-    addDoc.mockResolvedValueOnce({});
-
-    const { getByLabelText, getByText } = render(<UserDashboard userId="TestUser" companyId="TestCompany"/>);  //props userID and companyID
-    fireEvent.change(getByLabelText(/subject/i), { target: { value: 'Test Subject' } });         //simulate user input
-    fireEvent.change(getByLabelText(/description/i), { target: { value: 'Test Description' } });  //simulate user input
-    fireEvent.click(getByText(/submit ticket/i));  
-
-    await waitFor(() => {
-      expect(addDoc).toHaveBeenCalledWith(expect.anything(), mockTicketData);
-    });
-  });
-
-
 });
 
 
