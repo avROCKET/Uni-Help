@@ -14,7 +14,7 @@ const UserDashboard = () => {
   const [activeChatMessages, setActiveChatMessages] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
-
+  const [selectedTicketData, setSelectedTicketData] = useState(null);
 
   const fetchTicketsAndListenForUpdates = () => {
     if (userId) {
@@ -33,22 +33,25 @@ const UserDashboard = () => {
     fetchTicketsAndListenForUpdates();
   }, [userId]);
 
+
   const handleTicketClick = (ticketId) => {
-  setModalOpen(true);
-  
-  const messagesQuery = query(collection(doc(db, 'tickets', ticketId), 'messages'), orderBy('timestamp', 'desc'));
-  
-  onSnapshot(messagesQuery, (querySnapshot) => {
-    const messages = [];
-    querySnapshot.forEach((doc) => {
-      messages.push(doc.data());
+    setModalOpen(true);
+
+    const selectedTicketDetails = tickets.find(ticket => ticket.id === ticketId); //UPDATE: this gets all ticket data
+    setSelectedTicketData(selectedTicketDetails);
+
+    const messagesQuery = query(collection(doc(db, 'tickets', ticketId), 'messages'), orderBy('timestamp', 'desc')); //fetches messages
+    
+    onSnapshot(messagesQuery, (querySnapshot) => {
+        const messages = [];
+        querySnapshot.forEach((doc) => {
+            messages.push(doc.data());
+        });
+        setActiveChatMessages(messages);
+        setSelectedTicket(ticketId);
     });
-    setActiveChatMessages(messages);
-    setSelectedTicket(ticketId);
-    console.log("Active Chat Messages:", messages)
-    console.log("selectedTicket: ", selectedTicket);
-  });
 };
+
 
 useEffect(() => {
   console.log("selectedTicket changed:", selectedTicket);
@@ -87,7 +90,7 @@ useEffect(() => {
     
     return () => unsubscribe();
   }, []);
-
+  
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -198,6 +201,9 @@ useEffect(() => {
         messages={activeChatMessages}
         canSendMessage={true} 
         onSendMessage={sendMessageToTicket}
+        selectedTicketData={selectedTicketData} //pass ticket data as props
+        isClosed={selectedTicketData?.status === 'closed'} // this prevents further messages to be sent if the ticket is closed.
+        userId={userId} //pass userID so user name is shown with their message (see ChatModal)
       />
     </div>
   );

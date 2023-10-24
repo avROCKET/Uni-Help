@@ -3,7 +3,7 @@ import React from 'react';
 const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onHideTicket, selectedTicket }) => {
     const assignedTickets = tickets.filter(ticket => ticket.assignedTo);
     const unassignedTickets = tickets.filter(ticket => !ticket.assignedTo);
-
+    
     return (
         <div>
             <h2>Your Tickets</h2>
@@ -16,7 +16,7 @@ const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onHide
                         {ticket.subject} - {ticket.status} (Agent: {ticket.assignedTo})
                         </span>
                         {onAssignTicket && <button onClick={() => onAssignTicket(ticket.id)}>Re-Assign</button>}
-                        {onCloseTicket && <button onClick={() => onCloseTicket(ticket.id)}>Close</button>}
+                        {ticket.status !== 'closed' && onCloseTicket && <button onClick={() => onCloseTicket(ticket.id)}>Close</button>}
                         {onHideTicket && <button onClick={() => onHideTicket(ticket.id)}>Delete</button>}
                     </li>
                 ))}
@@ -30,7 +30,7 @@ const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onHide
                             {ticket.subject} - {ticket.status}
                         </span>
                         {onAssignTicket && <button onClick={() => onAssignTicket(ticket.id)}>Assign</button>}
-                        {onCloseTicket && <button onClick={() => onCloseTicket(ticket.id)}>Close</button>}
+                        {ticket.status !== 'closed' && onCloseTicket && <button onClick={() => onCloseTicket(ticket.id)}>Close</button>}
                         {onHideTicket && <button onClick={() => onHideTicket(ticket.id)}>Delete</button>}
                     </li>
                 ))}
