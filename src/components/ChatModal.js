@@ -7,13 +7,18 @@ const ChatModal = ({ isOpen, onClose, messages, canSendMessage, onSendMessage, t
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <div>
-                {messages.map((msg, index) => (
-                    <div key={index}>{msg.content}</div>
-                ))}
+                <div style={{display:'flex', flexDirection:'row', allignItems:'center', justifyContent:'center'}}>
+                    <h3 style={{paddingRight:5}}>Ticket Subject:</h3> 
+                    <h3>Subject Name Here</h3>
+                </div>
+                <div style={{display:'flex', flexDirection:'row', allignItems:'center', justifyContent:'center'}}>
+                    <h3 style={{paddingRight:5}}>Creation Date:</h3> 
+                    <h3>Date Here</h3>
+                </div>
+                <h1 style={{display:'flex', flexDirection:'row', allignItems:'center', justifyContent:'center'}}>Messages</h1>
 
                 {canSendMessage && (
-                    <div>
-                        <h1>Messages</h1>
+                    <div style={{display:'flex', flexDirection:'row', allignItems:'center', justifyContent:'center'}}>
                         <input 
                             type="text" 
                             value={message}
@@ -27,6 +32,12 @@ const ChatModal = ({ isOpen, onClose, messages, canSendMessage, onSendMessage, t
                         </button>
                     </div>
                 )}
+
+                <div style={{display:'flex', flexDirection:'column-reverse', allignItems:'center', justifyContent:'center'}}>
+                {messages.map((msg, index) => (
+                    <div style={{display:'flex', allignItems:'center', justifyContent:'center'}} key={index}>{msg.content}</div>
+                ))}
+                </div>
             </div>
         </Modal>
     );
