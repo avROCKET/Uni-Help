@@ -139,7 +139,7 @@ useEffect(() => {
     }
   };
   
-  const sendMessageToTicket = async (messageContent) => { // having an issue here.... message content not going through to fire base because selected ticket is null... idk why.
+  const sendMessageToTicket = async (messageContent) => { 
     console.log("Attempting to send message:", messageContent);
     console.log('selected ticket id:', selectedTicket);
     if (selectedTicket) {
@@ -187,13 +187,11 @@ useEffect(() => {
       <Tickets
         tickets={tickets}
         onTicketClick={handleTicketClick}
-        onCloseTicket={handleCloseTicket}
+        onCloseTicket={handleCloseTicket} //if close, show open
         onHideTicket={handleHideTicket}
         selectedTicket={selectedTicket}
       />
-      {activeChatMessages.map((message, index) => (
-        <div key={index}>{message.content}</div>
-        ))}
+      
       <ChatModal // using chatmodal for users and support. reviewers can only view chats so they will use regual modal screen, which i will update later 
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
