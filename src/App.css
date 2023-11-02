@@ -5,8 +5,8 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f4f4f4;
   animation: fadeIn 3s;
+  z-index: 1; 
 }
 
 .homepage-login-button {
@@ -19,6 +19,7 @@
   background: linear-gradient(90deg, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
   cursor: pointer;
   transition: transform 0.2s;
+  z-index: 1; 
 }
 
 .homepage-login-button:hover {
