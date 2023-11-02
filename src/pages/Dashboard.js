@@ -69,11 +69,20 @@ function Dashboard() {
 
   return (
     <div>
-      <h1>Dashboard</h1>
-      <p>Welcome, {userData ? userData.name : "User"}</p>
-      {userData && <p>Account role: {userData.role}</p>}
-      {renderDashboard()}
-      <button onClick={handleLogout}>Remember to Logout!</button>
+        <div className="navbar">
+          <img src="/assets/logo.png" alt="Logo" className="logo"/>
+          <button onClick={handleLogout} className="logout-btn">Logout</button>
+        </div>
+          <div className="background-video-container">
+            <video autoPlay loop muted playsInline className="background-video">
+              <source src="/assets/video4.mp4" type="video/mp4" />
+            </video>
+            <div className="content">
+              <p className='welcome-text'>Welcome, {userData ? userData.name : "User"}</p>
+              {userData && <p className='welcome-text'>Account role: {userData.role}</p>}
+              {renderDashboard()}
+            </div>
+          </div>
     </div>
   );
 }

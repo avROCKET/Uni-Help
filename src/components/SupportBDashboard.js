@@ -11,6 +11,7 @@ const SupportBDashboard = () => {
   const [activeChatMessages, setActiveChatMessages] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [selectedTicketData, setSelectedTicketData] = useState(null);
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
@@ -38,6 +39,9 @@ const SupportBDashboard = () => {
 
   const handleTicketClick = (ticketId) => {
     setModalOpen(true);
+    
+    const selectedTicketDetails = tickets.find(ticket => ticket.id === ticketId); //UPDATE: this gets all ticket data
+    setSelectedTicketData(selectedTicketDetails);
     
     const messagesQuery = query(collection(doc(db, 'tickets', ticketId), 'messages'), orderBy('timestamp', 'desc'));
     
@@ -81,22 +85,32 @@ const SupportBDashboard = () => {
   };
 
   return (
-    <div>
-      <h1>Support B Dashboard</h1>
-      <Tickets
-        tickets={tickets}
-        onTicketClick={handleTicketClick}
-        onCloseTicket={handleCloseTicket}
-        selectedTicket={selectedTicket}
-      />
+    <div className="dashboard-container">
+      <h1 className="dashboard-header">Support B Dashboard</h1>
+      <div className="tickets-container">
+        <Tickets
+          tickets={tickets}
+          onTicketClick={handleTicketClick}
+          onCloseTicket={handleCloseTicket}
+          selectedTicket={selectedTicket}
+          role='support'
+        />
+      </div>
       
-      <ChatModal // using chatmodal for users and support. reviewers can only view chats so they will use regual modal screen, which i will update later 
-        isOpen={isModalOpen}
-        onClose={() => setModalOpen(false)}
-        messages={activeChatMessages}
-        canSendMessage={true} 
-        onSendMessage={sendMessageToTicket}
-      />
+      {isModalOpen && (
+        <div className="chat-modal-container">
+          <ChatModal
+            isOpen={isModalOpen}
+            onClose={() => setModalOpen(false)}
+            messages={activeChatMessages}
+            canSendMessage={true} 
+            onSendMessage={sendMessageToTicket}
+            selectedTicketData={selectedTicketData}
+            isClosed={selectedTicketData?.status === 'closed'}
+            userId={userId}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { doc, updateDoc, getFirestore, collection, query, where, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, updateDoc, deleteDoc, getFirestore, collection, query, where, getDoc, onSnapshot } from 'firebase/firestore';
 import Tickets from './Tickets';
-import Modal from './Modal';
+import ChatModal from './ChatModal';
 
 
 const db = getFirestore();
@@ -14,6 +14,9 @@ const ReviewerDashboard = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [activeChatMessages, setActiveChatMessages] = useState([]);
   const [role, setRole] = useState(null);
+  const [selectedTicketData, setSelectedTicketData] = useState(null);
+  const [userId, setUserId] = useState(null);
+
 
 
   useEffect(() => {
@@ -60,6 +63,9 @@ const ReviewerDashboard = () => {
   };
 
   const handleTicketClick = (ticketId) => {
+
+    const selectedTicketDetails = tickets.find(ticket => ticket.id === ticketId); //UPDATE: this gets all ticket data
+    setSelectedTicketData(selectedTicketDetails);
     const messagesQuery = query(collection(doc(db, 'tickets', ticketId), 'messages'));
 
     onSnapshot(messagesQuery, (querySnapshot) => {
@@ -72,26 +78,54 @@ const ReviewerDashboard = () => {
     setModalOpen(true);
 };
 
+const handleTicketDelete = async (ticketId) => {
+  try {
+    const ticketRef = doc(db, 'tickets', ticketId);
+    const ticketSnapshot = await getDoc(ticketRef);
+
+    if (ticketSnapshot.exists()) {
+      const ticketData = ticketSnapshot.data();
+
+      // this will check if the ttickets are assigned. 
+      if (!ticketData.assignedTo || ticketData.assignedTo === '') {
+        await deleteDoc(ticketRef);
+        console.log('Ticket deleted successfully');
+      } else {
+        console.log('Error.');
+      }
+    } else {
+      console.log('Ticket not found');
+    }
+  } catch (error) {
+    console.error('Error deleting ticket:', error);
+  }
+};
 
   return (
-    <div>
+    <div className="dashboard-container">
       <h1>Reviewer Dashboard</h1>
-      <select value={selectedSupportLevel} onChange={e => setSelectedSupportLevel(e.target.value)}>
+      <select className="form-control-review" value={selectedSupportLevel} onChange={e => setSelectedSupportLevel(e.target.value)}>
         <option value="SupportA">Support A</option>
         <option value="SupportB">Support B</option>
         <option value="SupportC">Support C</option>
+        <option value="">Remove Assignment</option>
       </select>
       <Tickets
           tickets={tickets}
           onTicketClick={handleTicketClick}
           onAssignTicket={handleAssignTicket}
+          onTicketDelete={handleTicketDelete}
+          role={role}
       />
-      <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
-      <h2>Messages</h2>
-        {activeChatMessages.map((message, index) => (
-            <div key={index}>{message.content}</div>
-        ))}
-    </Modal>
+      <ChatModal 
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        messages={activeChatMessages}
+        canSendMessage={false} 
+        selectedTicketData={selectedTicketData} //pass ticket data as props
+        isClosed={selectedTicketData?.status === 'closed'} // this prevents further messages to be sent if the ticket is closed.
+        userId={userId} //pass userID so user name is shown with their message (see ChatModal)
+      />
     </div>
   );
 };

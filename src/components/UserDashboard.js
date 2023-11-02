@@ -3,6 +3,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { doc, updateDoc, addDoc, getFirestore, collection, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
 import Tickets from './Tickets';
 import ChatModal from './ChatModal';
+import useTicketGenerator from '../utils/useTicketGenerator';
 
 const db = getFirestore();
 
@@ -15,6 +16,9 @@ const UserDashboard = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedTicketData, setSelectedTicketData] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
+  const { ticketNumber, error } = useTicketGenerator()  
+
 
   const fetchTicketsAndListenForUpdates = () => {
     if (userId) {
@@ -98,11 +102,35 @@ useEffect(() => {
     console.log("Setting form state:", name, value);
   };
 
+  // validates that the form is filled before submission
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formState.subject.trim()) {
+      errors.subject = "Subject is required";
+    }
+
+    if (!formState.description.trim()) {
+      errors.description = "Description is required";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;  
+  };
+
+  useEffect(() => { // if ticket generator fails for some reason, log in console
+    if (error) {
+      console.error('Error message: ', error); 
+    }
+  }, [error]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
+    if (!validateForm()) return;  // Prevent form submission if validation fails
+
     try {
+      if (!ticketNumber) throw new Error('Ticket number not generated yet.');
       const ticketData = {
         userId: userId,
         companyId: formState.companyId,
@@ -111,15 +139,20 @@ useEffect(() => {
         status: 'open',
         created: new Date(),
         isVisible: true,
+        ticketNumber: ticketNumber,
+        year: new Date().getFullYear(),
       };
   
       console.log("ticketData before sending:", ticketData);
-      const ticketRef = await addDoc(collection(db, 'tickets'), ticketData);
+      await addDoc(collection(db, 'tickets'), ticketData);
       
       alert('Ticket submitted successfully');
+      setFormState({ companyId: '', subject: '', description: '' }); //this resets the form field upon submissioon
+      setFormErrors({});
+      window.location.reload(); // inconvenient but this is the only way i was able to fix the ticketgenerator.
     } catch (error) {
       console.error('Error submitting ticket:', error);
-      alert('Error submitting ticket');
+      alert('Error submitting ticket. Please fill out necessary fields.');
     }
   };
   
@@ -161,39 +194,45 @@ useEffect(() => {
   };
   
   return (
-    <div>
-      <h1>User Dashboard</h1>
-      <form onSubmit={handleSubmit}>
-      <label>
-        Company
-        <select name="companyId" value={formState.companyId} onChange={handleInputChange}>
-          {companies.map((company) => (
-            <option key={company.id} value={company.id}>
-              {company.name}
-            </option>
-          ))}
-        </select>
-      </label>
-        <br />
-        <label>
-          Subject
-          <input type="text" name="subject" value={formState.subject} onChange={handleInputChange} />
-        </label>
-        <br />
-        <label>
-          Description
-          <textarea name="description" value={formState.description} onChange={handleInputChange} />
-        </label>
-        <br />
-        <button type="submit">Submit Ticket</button>
-      </form>
-      <Tickets
-        tickets={tickets}
-        onTicketClick={handleTicketClick}
-        onCloseTicket={handleCloseTicket} //if close, show open
-        onHideTicket={handleHideTicket}
-        selectedTicket={selectedTicket}
-      />
+    <div className="dashboard-container">
+      <h1 className="dashboard-title">User Dashboard</h1>
+      <div className="dashboard-content">
+        <form className="ticket-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Company</label>
+            <select className="form-control" name="companyId" value={formState.companyId} onChange={handleInputChange}>
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="form-group">
+            <label className="form-label">Subject</label>
+            <input className="form-control" type="text" name="subject" value={formState.subject} onChange={handleInputChange} />
+            {formErrors.subject && <div className="error-message">{formErrors.subject}</div>}  
+          </div>
+          
+          <div className="form-group">
+            <label className="form-label">Description</label>
+            <textarea className="form-control" name="description" value={formState.description} onChange={handleInputChange} />
+            {formErrors.description && <div className="error-message">{formErrors.description}</div>}
+          </div>
+          
+          <button className="material-button" type="submit">Submit Ticket</button>
+        </form>
+        
+        <Tickets
+          tickets={tickets}
+          onTicketClick={handleTicketClick}
+          onCloseTicket={handleCloseTicket} //if close, show open
+          onHideTicket={handleHideTicket}
+          selectedTicket={selectedTicket}
+          role='user'
+        />
+      </div>
       
       <ChatModal // using chatmodal for users and support. reviewers can only view chats so they will use regual modal screen, which i will update later 
         isOpen={isModalOpen}

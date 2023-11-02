@@ -29,7 +29,6 @@ function SignUpCompany() {
     <div className="background-video-container">
         <video autoPlay loop muted playsInline className="background-video">
             <source src="/assets/video1.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
         </video>
 
         <div className="centered-content-container">

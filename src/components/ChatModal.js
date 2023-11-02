@@ -11,7 +11,8 @@ const ChatModal = ({ isOpen, onClose, messages, canSendMessage, onSendMessage, s
                 <div className="chat-modal-header">
                     <h3>Ticket Subject:</h3>
                     <p>{selectedTicketData?.subject || "no subject"}</p> 
-
+                    <h3>Description:</h3>
+                    <p>{selectedTicketData?.description || "no description"}</p>
                     <h3>Creation Date:</h3>
                     <p>{selectedTicketData?.created?.toDate().toDateString() || "no date"}</p>
                 </div>
@@ -20,7 +21,7 @@ const ChatModal = ({ isOpen, onClose, messages, canSendMessage, onSendMessage, s
                     {messages.map((msg, index) => (
                         <div className="chat-modal-message" key={index}>
                             <span className="message-sender-stamp">
-                                {msg.senderId === userId ? 'User' : 'Agent'}
+                                {msg.senderId === userId ? 'User' : 'Agent'} {/* need to make a bug fix. current user logged in is called 'User", even if support agent logged in.*/}
                             </span>
                             <p>{msg.content}</p>
                         </div>
