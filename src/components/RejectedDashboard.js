@@ -5,9 +5,9 @@ function RejectedDashboard() {
     const navigate = useNavigate();
 
   return (
-    <div>
+    <div className='dashboard-container'>
       <h1>Your request has been denied. Please contact support.</h1>
-      <h1>also, RejectedDashboard works lol</h1>
+      <button className="material-button" type="button" onClick={() => navigate('/')}>Back to Homepage</button>
     </div>
   );
 }

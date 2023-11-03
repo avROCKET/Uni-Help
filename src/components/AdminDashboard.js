@@ -62,13 +62,13 @@ function AdminDashboard() {
   }, []);
 
   return (
-    <div>
+    <div className='dashboard-container'>
       <h1>Admin Dashboard works</h1>
 
       <h2>Pending Approvals</h2>
       {pendingApprovals.map((approval, index) => (
         <div key={index}>
-          <p>{approval.name} - {approval.email}</p>
+          <p>{approval.name} - {approval.email} <button onClick={() => handleApprove(approval)}>Approve</button></p>
           <button onClick={() => handleApprove(approval)}>Approve</button>
           <button onClick={() => handleReject(approval)}>Reject</button>
         </div>

@@ -27,7 +27,7 @@ function PendingDashboard() {
   }
 
   return (
-    <div>
+    <div className='dashboard-container'>
       <h2>Pending Dashboard works</h2>
       <p>Your account is pending approval.</p>
       <p>Name: {pendingData.name}</p>
