@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { doc, updateDoc, getFirestore, collection, addDoc, query, where, onSnapshot, orderBy } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, getFirestore, collection, addDoc, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import Tickets from './Tickets';
 import ChatModal from './ChatModal';
 
@@ -12,20 +12,44 @@ const SupportBDashboard = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedTicketData, setSelectedTicketData] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [userName, setUserName] = useState(null);
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
+        const role = await fetchUserRole(user.uid); 
+        setUserRole(role);
+        const name = await fetchUserName(user.uid);
+        setUserName(name); 
       } else {
         setUserId(null);
+        setUserRole(null); 
+        setUserName(null);
       }
     });
-    
+
     return () => unsubscribe();
   }, []);
+  
+  const fetchUserRole = async (userId) => {
+    const userDocRef = doc(getFirestore(), 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    console.log("fetched user role:", userDoc.data().role);
+    return userDoc.data().role;
+  };
+
+  const fetchUserName = async (userId) => {
+    const userDocRef = doc(getFirestore(), 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    console.log("fetched user role:", userDoc.data().name);
+    return userDoc.data().name;
+  };
+
+
   useEffect(() => {
     const ticketsQuery = query(collection(db, 'tickets'), where('assignedTo', '==', 'SupportB'));
     onSnapshot(ticketsQuery, (querySnapshot) => {
@@ -75,6 +99,8 @@ const SupportBDashboard = () => {
           content: messageContent,
           timestamp: new Date(),
           senderId: userId,
+          senderName: userName,
+          senderRole: userRole,
         });
         console.log('selected ticket id:', selectedTicket);
       } catch (error) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { doc, updateDoc, addDoc, getFirestore, collection, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, addDoc, getFirestore, collection, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
 import Tickets from './Tickets';
 import ChatModal from './ChatModal';
 import useTicketGenerator from '../utils/useTicketGenerator';
@@ -17,6 +17,8 @@ const UserDashboard = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedTicketData, setSelectedTicketData] = useState(null);
   const [formErrors, setFormErrors] = useState({});
+  const [userRole, setUserRole] = useState(null);
+  const [userName, setUserName] = useState(null);
   const { ticketNumber, error } = useTicketGenerator()  
 
 
@@ -84,18 +86,38 @@ useEffect(() => {
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
+        const role = await fetchUserRole(user.uid); 
+        setUserRole(role);
+        const name = await fetchUserName(user.uid);
+        setUserName(name); 
       } else {
         setUserId(null);
+        setUserRole(null); 
+        setUserName(null);
       }
     });
-    
+
     return () => unsubscribe();
   }, []);
   
+  const fetchUserRole = async (userId) => {
+    const userDocRef = doc(getFirestore(), 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    console.log("fetched user role:", userDoc.data().role);
+    return userDoc.data().role;
+  };
+
+  const fetchUserName = async (userId) => {
+    const userDocRef = doc(getFirestore(), 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    console.log("fetched user role:", userDoc.data().name);
+    return userDoc.data().name;
+  };
   
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormState({ ...formState, [name]: value });
@@ -141,6 +163,7 @@ useEffect(() => {
         isVisible: true,
         ticketNumber: ticketNumber,
         year: new Date().getFullYear(),
+        //more data to be added to future revisions: name
       };
   
       console.log("ticketData before sending:", ticketData);
@@ -175,6 +198,7 @@ useEffect(() => {
     }
   };
   
+  console.log('name and role', userName,userRole)
   const sendMessageToTicket = async (messageContent) => { 
     console.log("Attempting to send message:", messageContent);
     console.log('selected ticket id:', selectedTicket);
@@ -184,6 +208,9 @@ useEffect(() => {
           content: messageContent,
           timestamp: new Date(),
           senderId: userId,
+          senderRole: userRole,
+          senderName: userName,
+
         });
         console.log('selected ticket id:', selectedTicket);
       } catch (error) {
@@ -220,8 +247,9 @@ useEffect(() => {
             <textarea className="form-control" name="description" value={formState.description} onChange={handleInputChange} />
             {formErrors.description && <div className="error-message">{formErrors.description}</div>}
           </div>
-          
+          <div className='button-container'>
           <button className="material-button" type="submit">Submit Ticket</button>
+          </div>
         </form>
         
         <Tickets
@@ -236,6 +264,7 @@ useEffect(() => {
       
       <ChatModal // using chatmodal for users and support. reviewers can only view chats so they will use regual modal screen, which i will update later 
         isOpen={isModalOpen}
+        role='user'
         onClose={() => setModalOpen(false)}
         messages={activeChatMessages}
         canSendMessage={true} 

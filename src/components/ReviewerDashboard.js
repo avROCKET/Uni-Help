@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { doc, updateDoc, deleteDoc, getFirestore, collection, query, where, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, updateDoc, deleteDoc, getFirestore, collection, query, where, getDoc, onSnapshot, orderBy } from 'firebase/firestore';
 import Tickets from './Tickets';
 import ChatModal from './ChatModal';
 
@@ -64,16 +64,21 @@ const ReviewerDashboard = () => {
 
   const handleTicketClick = (ticketId) => {
 
-    const selectedTicketDetails = tickets.find(ticket => ticket.id === ticketId); //UPDATE: this gets all ticket data
+    const selectedTicketDetails = tickets.find(ticket => ticket.id === ticketId); //UPDATE: this gets all ticket data, ordered by timestamp.
     setSelectedTicketData(selectedTicketDetails);
-    const messagesQuery = query(collection(doc(db, 'tickets', ticketId), 'messages'));
+    const messagesQuery = query(
+      collection(doc(db, 'tickets', ticketId), 'messages'), 
+      orderBy('timestamp', 'desc') 
+    );
 
     onSnapshot(messagesQuery, (querySnapshot) => {
         const messages = [];
         querySnapshot.forEach((doc) => {
             messages.push(doc.data());
         });
+        
         setActiveChatMessages(messages);
+        console.log("Fetched messages:", messages); // Check the fetched messages
     });
     setModalOpen(true);
 };
@@ -86,7 +91,7 @@ const handleTicketDelete = async (ticketId) => {
     if (ticketSnapshot.exists()) {
       const ticketData = ticketSnapshot.data();
 
-      // this will check if the ttickets are assigned. 
+      // this will check if the tickets are assigned. 
       if (!ticketData.assignedTo || ticketData.assignedTo === '') {
         await deleteDoc(ticketRef);
         console.log('Ticket deleted successfully');

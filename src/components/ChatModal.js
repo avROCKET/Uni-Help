@@ -1,13 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import Modal from './Modal';
 
 
-const ChatModal = ({ isOpen, onClose, messages, canSendMessage, onSendMessage, selectedTicketData, userId, isClosed }) => {
+const ChatModal = ({ isOpen, onClose, messages, canSendMessage, onSendMessage, selectedTicketData, isClosed }) => {
     const [message, setMessage] = useState('');
+    const modalContentRef = useRef();
+    
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (modalContentRef.current && !modalContentRef.current.contains(event.target)) {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isOpen, onClose]);
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
-            <div className="chat-modal-container">
+            <div className="chat-modal-container" ref={modalContentRef}>
                 <div className="chat-modal-header">
                     <h3>Ticket Subject:</h3>
                     <p>{selectedTicketData?.subject || "no subject"}</p> 
@@ -18,10 +35,11 @@ const ChatModal = ({ isOpen, onClose, messages, canSendMessage, onSendMessage, s
                 </div>
 
                 <div className="chat-modal-messages">
+                    {console.log("Rendering messages:", messages)}
                     {messages.map((msg, index) => (
                         <div className="chat-modal-message" key={index}>
                             <span className="message-sender-stamp">
-                                {msg.senderId === userId ? 'User' : 'Agent'} {/* need to make a bug fix. current user logged in is called 'User", even if support agent logged in.*/}
+                            {`${msg.senderName || 'No Name'} (${msg.senderRole || 'No Role'}):`} {/* need to make a bug fix. current user logged in is called 'User", even if support agent logged in.*/}
                             </span>
                             <p>{msg.content}</p>
                         </div>

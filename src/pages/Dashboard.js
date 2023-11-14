@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { logout } from '../utils/authFunctions.js';
 import { AuthContext } from '../utils/AuthContext.js';
 import { getUserData, getPendingApprovalData } from '../utils/dataFunctions.js';
@@ -15,6 +16,8 @@ import ReviewerDashboard from '../components/ReviewerDashboard.js';
 function Dashboard() {
   const { user } = useContext(AuthContext); 
   const [userData, setUserData] = useState(null);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     if (user) {
@@ -69,20 +72,23 @@ function Dashboard() {
 
   return (
     <div>
+      <div className="background-video-container">
+        <video autoPlay loop muted playsInline className="background-video">
+          <source src="/assets/video4.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div className="content-container">
         <div className="navbar">
-          <img src="/assets/logo.png" alt="Logo" className="logo"/>
+        <img src="/assets/logo.png" alt="UniHelp Logo" className="navbar-logo" onClick={() => navigate('/')} />
           <button onClick={handleLogout} className="logout-btn">Logout</button>
         </div>
-          <div className="background-video-container">
-            <video autoPlay loop muted playsInline className="background-video">
-              <source src="/assets/video4.mp4" type="video/mp4" />
-            </video>
-            <div className="content">
-              <p className='welcome-text'>Welcome, {userData ? userData.name : "User"}</p>
-              {userData && <p className='welcome-text'>Account role: {userData.role}</p>}
-              {renderDashboard()}
-            </div>
-          </div>
+        <div className="content">
+          {renderDashboard()}
+          <p className='welcome-text'>
+            <i>Welcome, {userData ? userData.name : "User"}{userData ? ` - Account role: ${userData.role}` : ""}</i>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
