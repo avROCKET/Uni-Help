@@ -78,7 +78,7 @@ const ReviewerDashboard = () => {
         });
         
         setActiveChatMessages(messages);
-        console.log("Fetched messages:", messages); // Check the fetched messages
+        console.log("Fetched messages:", messages);
     });
     setModalOpen(true);
 };
