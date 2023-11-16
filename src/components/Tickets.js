@@ -29,7 +29,7 @@ const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onTick
                             {ticket.status !== 'closed' && onCloseTicket && <button className="ticket-button" onClick={() => onCloseTicket(ticket.id)}>&nbsp;Close</button>}
                             {onHideTicket && <button className="ticket-button" onClick={() => onHideTicket(ticket.id)}>Delete</button>}
                             {!assigned && onTicketDelete && <button className="ticket-button" onClick={() => onTicketDelete(ticket.id)}>Delete</button>}
-                            {onEscalateTicket && <button onClick={() => onEscalateTicket(ticket.id)}>Escalate</button>}
+                            {onEscalateTicket && <button className="ticket-button" onClick={() => onEscalateTicket(ticket.id)}>Escalate</button>}
                         </td>
                     </tr>
 
