@@ -80,6 +80,27 @@ const SupportBDashboard = () => {
     }
   };
 
+  const handleEscalateTicket = async (ticketId) => {
+    console.log('escalate Here: ' + ticketId)
+    try {
+      const companyID = doc(db, 'tickets', ticketId)
+      db.collection('users').where("role", '==', 'supportb')
+      .get()
+      .then(function(querySnapshot) { 
+        querySnapshot.forEach(function(doc) {
+          console.log(doc.id, " -> ", doc.data());
+        });
+      }) 
+
+
+      const ticketRef = doc(db, 'tickets', ticketId);
+      await updateDoc(ticketRef, { assignedTo: 'SupportB' });
+    } catch (error) {
+      console.error('Error escalating ticket:', error);
+    }
+  }
+
+
   return (
     <div>
       <h1>Support B Dashboard</h1>
@@ -88,6 +109,7 @@ const SupportBDashboard = () => {
         onTicketClick={handleTicketClick}
         onCloseTicket={handleCloseTicket}
         selectedTicket={selectedTicket}
+        onEscalateTicket={handleEscalateTicket}
       />
       
       <ChatModal // using chatmodal for users and support. reviewers can only view chats so they will use regual modal screen, which i will update later 

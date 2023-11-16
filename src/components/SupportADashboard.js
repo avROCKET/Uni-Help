@@ -80,6 +80,22 @@ const SupportADashboard = () => {
     }
   };
 
+  const handleEscalateTicket = async (ticketId) => {
+    console.log('escalate Here: ' + ticketId)
+    try {
+      //first check if there are higher support level accounts that the ticket can be escalated to
+      let count = 0
+      const companyID = doc(db, 'tickets', ticketId)
+      const supportBAccounts = query(collection(db, 'users'), where('role', '==', 'supportb'), where('companyID', '==', companyID))
+      console.log("Test: " + supportBAccounts)
+
+      const ticketRef = doc(db, 'tickets', ticketId);
+      await updateDoc(ticketRef, { assignedTo: 'SupportB' });
+    } catch (error) {
+      console.error('Error escalating ticket:', error);
+    }
+  }
+
   return (
     <div>
       <h1>Support A Dashboard</h1>
@@ -87,6 +103,7 @@ const SupportADashboard = () => {
         tickets={tickets}
         onTicketClick={handleTicketClick}
         onCloseTicket={handleCloseTicket}
+        onEscalateTicket={handleEscalateTicket}
         selectedTicket={selectedTicket}
       />
       

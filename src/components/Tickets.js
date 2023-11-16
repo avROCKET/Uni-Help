@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onHideTicket, selectedTicket }) => {
+const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onHideTicket, onEscalateTicket, selectedTicket }) => {
     const assignedTickets = tickets.filter(ticket => ticket.assignedTo);
     const unassignedTickets = tickets.filter(ticket => !ticket.assignedTo);
 
@@ -18,6 +18,7 @@ const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onHide
                         {onAssignTicket && <button onClick={() => onAssignTicket(ticket.id)}>Re-Assign</button>}
                         {onCloseTicket && <button onClick={() => onCloseTicket(ticket.id)}>Close</button>}
                         {onHideTicket && <button onClick={() => onHideTicket(ticket.id)}>Delete</button>}
+                        {onEscalateTicket && <button onClick={() => onEscalateTicket(ticket.id)}>Escalate</button>}
                     </li>
                 ))}
             </ul>
