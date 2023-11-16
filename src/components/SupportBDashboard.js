@@ -114,6 +114,11 @@ const SupportBDashboard = () => {
     console.log('escalate Here: ' + ticketId)
     try {
       const ticketRef = doc(db, 'tickets', ticketId);
+      const ticketDoc = await getDoc(ticketRef)
+      const companyId = ticketDoc.data().companyId
+
+
+
       await updateDoc(ticketRef, { assignedTo: 'SupportC' });
     } catch (error) {
       console.error('Error escalating ticket:', error);
