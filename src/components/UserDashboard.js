@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { doc, updateDoc, addDoc, getFirestore, collection, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, addDoc, getFirestore, collection, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
 import Tickets from './Tickets';
 import ChatModal from './ChatModal';
+import useTicketGenerator from '../utils/useTicketGenerator';
 
 const db = getFirestore();
 
@@ -14,6 +15,11 @@ const UserDashboard = () => {
   const [activeChatMessages, setActiveChatMessages] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [selectedTicketData, setSelectedTicketData] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
+  const [userRole, setUserRole] = useState(null);
+  const [userName, setUserName] = useState(null);
+  const { ticketNumber, error } = useTicketGenerator()  
 
 
   const fetchTicketsAndListenForUpdates = () => {
@@ -33,22 +39,25 @@ const UserDashboard = () => {
     fetchTicketsAndListenForUpdates();
   }, [userId]);
 
+
   const handleTicketClick = (ticketId) => {
-  setModalOpen(true);
-  
-  const messagesQuery = query(collection(doc(db, 'tickets', ticketId), 'messages'), orderBy('timestamp', 'desc'));
-  
-  onSnapshot(messagesQuery, (querySnapshot) => {
-    const messages = [];
-    querySnapshot.forEach((doc) => {
-      messages.push(doc.data());
+    setModalOpen(true);
+
+    const selectedTicketDetails = tickets.find(ticket => ticket.id === ticketId); //UPDATE: this gets all ticket data
+    setSelectedTicketData(selectedTicketDetails);
+
+    const messagesQuery = query(collection(doc(db, 'tickets', ticketId), 'messages'), orderBy('timestamp', 'desc')); //fetches messages
+    
+    onSnapshot(messagesQuery, (querySnapshot) => {
+        const messages = [];
+        querySnapshot.forEach((doc) => {
+            messages.push(doc.data());
+        });
+        setActiveChatMessages(messages);
+        setSelectedTicket(ticketId);
     });
-    setActiveChatMessages(messages);
-    setSelectedTicket(ticketId);
-    console.log("Active Chat Messages:", messages)
-    console.log("selectedTicket: ", selectedTicket);
-  });
 };
+
 
 useEffect(() => {
   console.log("selectedTicket changed:", selectedTicket);
@@ -77,29 +86,73 @@ useEffect(() => {
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
+        const role = await fetchUserRole(user.uid); 
+        setUserRole(role);
+        const name = await fetchUserName(user.uid);
+        setUserName(name); 
       } else {
         setUserId(null);
+        setUserRole(null); 
+        setUserName(null);
       }
     });
-    
+
     return () => unsubscribe();
   }, []);
-
   
+  const fetchUserRole = async (userId) => {
+    const userDocRef = doc(getFirestore(), 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    console.log("fetched user role:", userDoc.data().role);
+    return userDoc.data().role;
+  };
+
+  const fetchUserName = async (userId) => {
+    const userDocRef = doc(getFirestore(), 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    console.log("fetched user role:", userDoc.data().name);
+    return userDoc.data().name;
+  };
+  
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormState({ ...formState, [name]: value });
     console.log("Setting form state:", name, value);
   };
 
+  // validates that the form is filled before submission
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formState.subject.trim()) {
+      errors.subject = "Subject is required";
+    }
+
+    if (!formState.description.trim()) {
+      errors.description = "Description is required";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;  
+  };
+
+  useEffect(() => { // if ticket generator fails for some reason, log in console
+    if (error) {
+      console.error('Error message: ', error); 
+    }
+  }, [error]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
+    if (!validateForm()) return;  // Prevent form submission if validation fails
+
     try {
+      if (!ticketNumber) throw new Error('Ticket number not generated yet.');
       const ticketData = {
         userId: userId,
         companyId: formState.companyId,
@@ -108,15 +161,21 @@ useEffect(() => {
         status: 'open',
         created: new Date(),
         isVisible: true,
+        ticketNumber: ticketNumber,
+        year: new Date().getFullYear(),
+        //more data to be added to future revisions: name
       };
   
       console.log("ticketData before sending:", ticketData);
-      const ticketRef = await addDoc(collection(db, 'tickets'), ticketData);
+      await addDoc(collection(db, 'tickets'), ticketData);
       
       alert('Ticket submitted successfully');
+      setFormState({ companyId: '', subject: '', description: '' }); //this resets the form field upon submissioon
+      setFormErrors({});
+      window.location.reload(); // inconvenient but this is the only way i was able to fix the ticketgenerator.
     } catch (error) {
       console.error('Error submitting ticket:', error);
-      alert('Error submitting ticket');
+      alert('Error submitting ticket. Please fill out necessary fields.');
     }
   };
   
@@ -139,6 +198,7 @@ useEffect(() => {
     }
   };
   
+  console.log('name and role', userName,userRole)
   const sendMessageToTicket = async (messageContent) => { 
     console.log("Attempting to send message:", messageContent);
     console.log('selected ticket id:', selectedTicket);
@@ -148,6 +208,9 @@ useEffect(() => {
           content: messageContent,
           timestamp: new Date(),
           senderId: userId,
+          senderRole: userRole,
+          senderName: userName,
+
         });
         console.log('selected ticket id:', selectedTicket);
       } catch (error) {
@@ -158,46 +221,57 @@ useEffect(() => {
   };
   
   return (
-    <div>
-      <h1>User Dashboard</h1>
-      <form onSubmit={handleSubmit}>
-      <label>
-        Company
-        <select name="companyId" value={formState.companyId} onChange={handleInputChange}>
-          {companies.map((company) => (
-            <option key={company.id} value={company.id}>
-              {company.name}
-            </option>
-          ))}
-        </select>
-      </label>
-        <br />
-        <label>
-          Subject
-          <input type="text" name="subject" value={formState.subject} onChange={handleInputChange} />
-        </label>
-        <br />
-        <label>
-          Description
-          <textarea name="description" value={formState.description} onChange={handleInputChange} />
-        </label>
-        <br />
-        <button type="submit">Submit Ticket</button>
-      </form>
-      <Tickets
-        tickets={tickets}
-        onTicketClick={handleTicketClick}
-        onCloseTicket={handleCloseTicket} //if close, show open
-        onHideTicket={handleHideTicket}
-        selectedTicket={selectedTicket}
-      />
+    <div className="dashboard-container">
+      <h1 className="dashboard-title">User Dashboard</h1>
+      <div className="dashboard-content">
+        <form className="ticket-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Company</label>
+            <select className="form-control" name="companyId" value={formState.companyId} onChange={handleInputChange}>
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="form-group">
+            <label className="form-label">Subject</label>
+            <input className="form-control" type="text" name="subject" value={formState.subject} onChange={handleInputChange} />
+            {formErrors.subject && <div className="error-message">{formErrors.subject}</div>}  
+          </div>
+          
+          <div className="form-group">
+            <label className="form-label">Description</label>
+            <textarea className="form-control" name="description" value={formState.description} onChange={handleInputChange} />
+            {formErrors.description && <div className="error-message">{formErrors.description}</div>}
+          </div>
+          <div className='button-container'>
+          <button className="material-button" type="submit">Submit Ticket</button>
+          </div>
+        </form>
+        
+        <Tickets
+          tickets={tickets}
+          onTicketClick={handleTicketClick}
+          onCloseTicket={handleCloseTicket} //if close, show open
+          onHideTicket={handleHideTicket}
+          selectedTicket={selectedTicket}
+          role='user'
+        />
+      </div>
       
       <ChatModal // using chatmodal for users and support. reviewers can only view chats so they will use regual modal screen, which i will update later 
         isOpen={isModalOpen}
+        role='user'
         onClose={() => setModalOpen(false)}
         messages={activeChatMessages}
         canSendMessage={true} 
         onSendMessage={sendMessageToTicket}
+        selectedTicketData={selectedTicketData} //pass ticket data as props
+        isClosed={selectedTicketData?.status === 'closed'} // this prevents further messages to be sent if the ticket is closed.
+        userId={userId} //pass userID so user name is shown with their message (see ChatModal)
       />
     </div>
   );

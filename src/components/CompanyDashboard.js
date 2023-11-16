@@ -38,32 +38,32 @@ function CompanyDashboard() {
   
 
   return (
-    <div>
+    <div className='dashboard-container'>
       <h1>Company Dashboard</h1>
       <p>Company ID: {userData.uid}</p>
       <form onSubmit={handleSubmit}>
-        <input 
+        <input className='form-control'
           type="text" 
           name="name" 
           placeholder="Name" 
           value={formState.name} 
           onChange={handleInputChange} 
         />
-        <input 
+        <input className='form-control'
           type="email" 
           name="email" 
           placeholder="Email" 
           value={formState.email} 
           onChange={handleInputChange} 
         />
-        <input 
+        <input className='form-control'
           type="password" 
           name="password" 
           placeholder="Password" 
           value={formState.password} 
           onChange={handleInputChange} 
         />
-        <select 
+        <select className='form-control-review'
           name="role" 
           value={formState.role} 
           onChange={handleInputChange}
@@ -73,7 +73,7 @@ function CompanyDashboard() {
           <option value="supportc">Support Level 3</option>
           <option value="reviewer">Reviewer</option>
         </select>
-        <button type="submit">Create Employee Profile</button>
+        <button className='material-button' type="submit">Create Employee Profile</button>
       </form>
       <h2>Employee List</h2>
     <ul>

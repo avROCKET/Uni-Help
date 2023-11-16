@@ -4,9 +4,9 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f4f4f4;
+  height: 100%;
   animation: fadeIn 3s;
+  z-index: 1; 
 }
 
 .homepage-login-button {
@@ -19,6 +19,7 @@
   background: linear-gradient(90deg, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
   cursor: pointer;
   transition: transform 0.2s;
+  z-index: 1; 
 }
 
 .homepage-login-button:hover {
@@ -36,13 +37,12 @@
 
 /* live background */
 .background-video-container {
-  position: fixed; 
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  z-index: -1; 
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }
 
 .background-video {
@@ -164,4 +164,374 @@
   transition: transform 0.2s, color 0.2s;
 }
 
+/* Modal in general */
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.5s ease-in-out forwards;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  width: 80%;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.modal-close {
+  float: right;
+}
+
+
+/* Chat Modal */
+
+.chat-modal-container {
+  padding: 0px;
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  width: 80vw;
+  border-radius: 8px;
+}
+
+.chat-modal-header {
+  margin-bottom: 20px;
+}
+
+.chat-modal-header h3 {
+  margin: 0;
+  font-weight: bold;
+}
+
+.chat-modal-header p {
+  margin-top: 8px;
+  color: #777;
+}
+
+.chat-modal-messages {
+  display: flex;
+  flex: 1;
+  margin-bottom: 20px;
+  border: 1px solid #ffffff;
+  border-radius: 10px;
+  padding: 10px;
+  flex-direction: column-reverse;
+  overflow-y: scroll;
+}
+
+.message-sender-stamp {
+  font-size: 0.8rem;
+  color: gray;
+  margin-top: 3px;
+  margin-bottom: -10px;
+  text-align: left;
+  display: block;
+}
+
+.chat-modal-message {
+  padding: 5px;
+  border-bottom: 1px solid #ffffff;
+}
+
+.chat-modal-input-container {
+  display: flex;
+}
+
+.chat-modal-input {
+  flex: 1;
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.chat-modal-input:focus {
+  border-color: #333;
+  outline: none;
+}
+
+.chat-modal-send-button {
+  background: linear-gradient(90deg, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.chat-modal-send-button:hover {
+  transform: scale(1.05);
+}
+
+.close-btn {
+  background-color: rgb(142, 46, 46); /* Red background */
+  color: white; /* White text */
+  border: none;
+  border-radius: 50%; /* Circular shape */
+  cursor: pointer;
+  font-size: 14px; /* Adjust size as needed */
+  width: 25px; /* Width of the button */
+  height: 25px; /* Height of the button */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto; /* Pushes the button to the right */
+}
+
+.close-btn:hover {
+  background-color: darkred; /* Darker red on hover */
+}
+
+
+/* Dashboards */
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; 
+  background-color: #f4f4f4;
+  padding: 20px;
+  max-width: 800px;
+  width: 100%; 
+  border-radius: 20px;
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.dashboard-content {
+  width: 100%;
+  max-width: 800px;
+}
+
+.ticket-form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #555;
+}
+
+.button-container {
+  text-align: center;
+}
+.form-control {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.form-control-review {
+  max-width: 400px;
+  margin-bottom: 10px;
+  width:100;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.form-control:focus {
+  border-color: #635efb;
+  outline: none;
+}
+
+.material-button {
+  display: inline-block;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  color: #fff;
+  background: linear-gradient(90deg, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
+  cursor: pointer;
+  transition: transform 0.2s;
+  text-align: center;
+}
+
+.material-button:hover {
+  transform: scale(1.05);
+}
+
+.error-message {
+  color: red;
+}
+
+
+/* Outer Dashboard */
+.dashboard-container {
+  font-family: Arial, sans-serif;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.2); 
+  backdrop-filter: blur(10px);
+  color: #fff;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo {
+  height: 30px;
+  margin: 10px 10px;
+  cursor: pointer;
+}
+
+.logout-container {
+  display: flex;
+  align-items: center;
+}
+
+.logout-btn {
+  background-color: #f44336;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 10px 10px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.logout-btn:hover {
+  background-color: #fff;
+  color: black;
+}
+
+.content-container {
+  position: relative;
+  z-index: 1;
+}
+
+.content {
+  padding: 20px;
+  margin-top: 50px;
+  position: relative; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.welcome-text{
+  color: white;
+}
+
+/* Ticket Component */
+.ticket-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  overflow-y: auto;
+}
+
+.ticket-header {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.ticket-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ticket-table th, .ticket-table td {
+  padding: 10px;
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: 1px solid #ddd;
+}
+
+
+.ticket-row {
+  /* Other styles */
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ticket-row:hover {
+  background-color: #f5f5f5;
+  transform: translateY(-3px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-info {
+  cursor: pointer;
+}
+
+.ticket-button {
+  padding: 5px 10px;
+  margin-left: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.ticket-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.selected-ticket {
+  background-color: lightgray;
+}
