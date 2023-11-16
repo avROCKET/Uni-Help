@@ -110,6 +110,27 @@ const SupportBDashboard = () => {
     }
   };
 
+  const handleEscalateTicket = async (ticketId) => {
+    console.log('escalate Here: ' + ticketId)
+    try {
+      const companyID = doc(db, 'tickets', ticketId)
+      db.collection('users').where("role", '==', 'supportb')
+      .get()
+      .then(function(querySnapshot) { 
+        querySnapshot.forEach(function(doc) {
+          console.log(doc.id, " -> ", doc.data());
+        });
+      }) 
+
+
+      const ticketRef = doc(db, 'tickets', ticketId);
+      await updateDoc(ticketRef, { assignedTo: 'SupportB' });
+    } catch (error) {
+      console.error('Error escalating ticket:', error);
+    }
+  }
+
+
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-header">Support B Dashboard</h1>
@@ -118,6 +139,7 @@ const SupportBDashboard = () => {
           tickets={tickets}
           onTicketClick={handleTicketClick}
           onCloseTicket={handleCloseTicket}
+          onEscalateTicket={handleEscalateTicket}
           selectedTicket={selectedTicket}
           role='support'
         />
