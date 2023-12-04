@@ -14,7 +14,10 @@ const SupportCDashboard = () => {
   const [selectedTicketData, setSelectedTicketData] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [userCompId, setUserCompId] = useState(null)
   const [userId, setUserId] = useState(null);
+  const [activeTab, setActiveTab] = useState('claimed');
+
 
   useEffect(() => {
     const auth = getAuth();
@@ -25,10 +28,13 @@ const SupportCDashboard = () => {
         setUserRole(role);
         const name = await fetchUserName(user.uid);
         setUserName(name); 
+        const companyId = await fetchCompanyId(user.uid);
+        setUserCompId(companyId);
       } else {
         setUserId(null);
         setUserRole(null); 
         setUserName(null);
+        setUserCompId(null);
       }
     });
 
@@ -49,17 +55,32 @@ const SupportCDashboard = () => {
     return userDoc.data().name;
   };
 
+  const fetchCompanyId = async (userId) => {
+    const userDocRef = doc(getFirestore(), 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    console.log("fetched user companyID:", userDoc.data().companyId);
+    return userDoc.data().companyId;
+  };
 
   useEffect(() => {
-    const ticketsQuery = query(collection(db, 'tickets'), where('assignedTo', '==', 'SupportC'));
-    onSnapshot(ticketsQuery, (querySnapshot) => {
-      const ticketsArray = [];
-      querySnapshot.forEach((doc) => {
-        ticketsArray.push({ id: doc.id, ...doc.data() });
+    if (userCompId) {
+      const ticketsQuery = query(
+        collection(db, 'tickets'), 
+        where('assignedTo', '==', 'SupportC'),
+        where('companyId', '==', userCompId),
+        where('claimed', 'in', [userId, ""])
+      );
+      console.log(" user companyID:", userCompId)
+  
+      onSnapshot(ticketsQuery, (querySnapshot) => {
+        const ticketsArray = [];
+        querySnapshot.forEach((doc) => {
+          ticketsArray.push({ id: doc.id, ...doc.data() });
+        });
+        setTickets(ticketsArray);
       });
-      setTickets(ticketsArray);
-    });
-  }, []);
+    }
+  }, [userCompId]); 
 
   const handleTicketClick = (ticketId) => {
     setModalOpen(true);
@@ -110,19 +131,87 @@ const SupportCDashboard = () => {
     }
   };
 
+  const handleClaimTicket = async (ticketId) => {
+    const ticketRef = doc(db, 'tickets', ticketId);
+    try {
+      await updateDoc(ticketRef, { claimed: userId });
+      console.log(`Ticket ${ticketId} claimed by user ${userId}`);
+    } catch (error) {
+      console.error('Error claiming ticket:', error);
+    }
+  };
+  
+  const myTickets = tickets.filter(ticket => ticket.claimed === userId && ticket.status !== 'closed');
+  const unclaimedTickets = tickets.filter(ticket => ticket.claimed === "" && ticket.status !== 'closed');
+  const closedTickets = tickets.filter(ticket => ticket.status === 'closed');
+
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-header">Support C Dashboard</h1>
       <div className="tickets-container">
-        <Tickets
-          tickets={tickets}
-          onTicketClick={handleTicketClick}
-          onCloseTicket={handleCloseTicket}
-          selectedTicket={selectedTicket}
-          role='support'
-        />
-      </div>
+        <div className="tabs">
+            <button onClick={() => setActiveTab('claimed')} className={activeTab === 'claimed' ? 'active-tab' : ''}>
+                Claimed Tickets
+            </button>
+            <button onClick={() => setActiveTab('unclaimed')} className={activeTab === 'unclaimed' ? 'active-tab' : ''}>
+                Unclaimed Tickets
+            </button>
+            <button onClick={() => setActiveTab('closed')} className={activeTab === 'closed' ? 'active-tab' : ''}>
+                Closed Tickets
+            </button>
+            <button onClick={() => setActiveTab('search')} className={activeTab === 'search' ? 'active-tab' : ''}>
+                Search Tickets
+            </button> 
+        </div>
+
+        {activeTab === 'claimed' && (
+            <div className="claimed-tickets-container">
+                <h2 className="tickets-header">My Tickets</h2>
+                <Tickets
+                    tickets={myTickets}
+                    onTicketClick={handleTicketClick}
+                    onCloseTicket={handleCloseTicket}
+                    onAssignTicket={handleClaimTicket}
+                    selectedTicket={selectedTicket}
+                    role='support'
+                    userId = {userId}
+                />
+            </div>
+        )}
+        {activeTab === 'unclaimed' && (
+            <div className="unclaimed-tickets-container">
+                <h2 className="tickets-header">Unclaimed Tickets</h2>
+                <Tickets
+                    tickets={unclaimedTickets}
+                    onTicketClick={handleTicketClick}
+                    onCloseTicket={handleCloseTicket}
+                    onAssignTicket={handleClaimTicket}
+                    selectedTicket={selectedTicket}
+                    role='support'
+                    userId = {userId}
+                />
+            </div>
+        )}
+        {activeTab === 'closed' && (
+            <div className="closed-tickets-container">
+                <h2 className="tickets-header">Closed Tickets</h2>
+                <Tickets
+                    tickets={closedTickets}
+                    onTicketClick={handleTicketClick}
+                    selectedTicket={selectedTicket}
+                    role='support'
+                    userId = {userId}
+                />
+            </div>
+        )}
+        {activeTab === 'search' && (
+            <div className="search-tickets-container">
+                <h2 className="tickets-header">Search Tickets</h2>      {/* search function goes in here, make sure changes reflect in A/B/C (sorry...) */}
+            </div>
+        )}
       
+      </div>
+
       {isModalOpen && (
         <div className="chat-modal-container">
           <ChatModal

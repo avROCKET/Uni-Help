@@ -28,7 +28,7 @@ function CompanyDashboard() {
     
   
     try {
-      await register(formState.email, formState.password, formState.name, formState.role, false, userData.uid);
+      await register(formState.email, formState.password, formState.name, formState.role, true, userData.uid); //set auto-login to true, due to invalid permissions error.
       alert('User created successfully');
     } catch (error) {
       console.error('Error creating user:', error);

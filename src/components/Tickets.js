@@ -1,9 +1,11 @@
 import React from 'react';
 
 
-const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onTicketDelete, onHideTicket, onEscalateTicket, selectedTicket, role }) => {
+const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onTicketDelete, onHideTicket, onEscalateTicket, selectedTicket, role, userId }) => {
     const assignedTickets = tickets.filter(ticket => ticket.assignedTo);
     const unassignedTickets = tickets.filter(ticket => !ticket.assignedTo);
+    
+
     
     const renderTickets = (ticketsList, assigned, user, support) => (
         <table className="ticket-table">
@@ -25,11 +27,12 @@ const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onTick
                         {!support && <td onClick={() => onTicketClick(ticket.id)}>{user && ticket.assignedTo}</td>}
                         
                         <td>
-                            {onAssignTicket && <button className="ticket-button" onClick={() => onAssignTicket(ticket.id)}>{assigned ? 'Re-Assign' : 'Assign'}</button>}
                             {ticket.status !== 'closed' && onCloseTicket && <button className="ticket-button" onClick={() => onCloseTicket(ticket.id)}>&nbsp;Close</button>}
                             {onHideTicket && <button className="ticket-button" onClick={() => onHideTicket(ticket.id)}>Delete</button>}
                             {!assigned && onTicketDelete && <button className="ticket-button" onClick={() => onTicketDelete(ticket.id)}>Delete</button>}
                             {onEscalateTicket && <button className="ticket-button" onClick={() => onEscalateTicket(ticket.id)}>Escalate</button>}
+                            {!ticket.claimed && role === 'support' && ticket.status !== 'closed' && (<button className="ticket-button" onClick={() => onAssignTicket(ticket.id)}>Claim</button>)}
+                            {role !== 'support' && onAssignTicket && (<button className="ticket-button" onClick={() => onAssignTicket(ticket.id)}>{assigned ? 'Re-Assign' : 'Assign'}</button>)}
                         </td>
                     </tr>
 
@@ -63,8 +66,7 @@ const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onTick
     else if (role === 'support') {
         return (
             <div className="ticket-container">
-                <h2 className="ticket-header">My Work Queue</h2>
-                {renderTickets(tickets, false, false, true)}
+                {renderTickets(tickets)}
             </div>
         );
     } 

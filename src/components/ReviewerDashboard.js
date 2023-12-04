@@ -56,7 +56,7 @@ const ReviewerDashboard = () => {
   const handleAssignTicket = async (ticketId) => {
     try {
       const ticketRef = doc(db, 'tickets', ticketId);
-      await updateDoc(ticketRef, { assignedTo: selectedSupportLevel });
+      await updateDoc(ticketRef, { assignedTo: selectedSupportLevel, claimed: ''});
     } catch (error) {
       console.error('Error assigning ticket:', error);
     }

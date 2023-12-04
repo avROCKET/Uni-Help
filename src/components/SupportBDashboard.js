@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { doc, updateDoc, getDoc, getFirestore, collection, addDoc, query, where, onSnapshot, orderBy } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, getDocs, getFirestore, collection, addDoc, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import Tickets from './Tickets';
 import ChatModal from './ChatModal';
+import AlertModal from './AlertModal';
 
 const db = getFirestore();
 
@@ -14,7 +15,11 @@ const SupportBDashboard = () => {
   const [selectedTicketData, setSelectedTicketData] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [userCompId, setUserCompId] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [currentTicketId, setCurrentTicketId] = useState(null);
+  const [activeTab, setActiveTab] = useState('claimed');
 
   useEffect(() => {
     const auth = getAuth();
@@ -25,10 +30,13 @@ const SupportBDashboard = () => {
         setUserRole(role);
         const name = await fetchUserName(user.uid);
         setUserName(name); 
+        const companyId = await fetchCompanyId(user.uid);
+        setUserCompId(companyId);
       } else {
         setUserId(null);
         setUserRole(null); 
         setUserName(null);
+        setUserCompId(null);
       }
     });
 
@@ -45,21 +53,36 @@ const SupportBDashboard = () => {
   const fetchUserName = async (userId) => {
     const userDocRef = doc(getFirestore(), 'users', userId);
     const userDoc = await getDoc(userDocRef);
-    console.log("fetched user role:", userDoc.data().name);
+    console.log("fetched user name:", userDoc.data().name);
     return userDoc.data().name;
   };
-
+  
+  const fetchCompanyId = async (userId) => {
+    const userDocRef = doc(getFirestore(), 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    console.log("fetched user companyID:", userDoc.data().companyId);
+    return userDoc.data().companyId;
+  };
 
   useEffect(() => {
-    const ticketsQuery = query(collection(db, 'tickets'), where('assignedTo', '==', 'SupportB'));
-    onSnapshot(ticketsQuery, (querySnapshot) => {
-      const ticketsArray = [];
-      querySnapshot.forEach((doc) => {
-        ticketsArray.push({ id: doc.id, ...doc.data() });
+    if (userCompId) {
+      const ticketsQuery = query(
+        collection(db, 'tickets'), 
+        where('assignedTo', '==', 'SupportB'),
+        where('companyId', '==', userCompId),
+        where('claimed', 'in', [userId, ""])
+      );
+      console.log(" user companyID:", userCompId)
+  
+      onSnapshot(ticketsQuery, (querySnapshot) => {
+        const ticketsArray = [];
+        querySnapshot.forEach((doc) => {
+          ticketsArray.push({ id: doc.id, ...doc.data() });
+        });
+        setTickets(ticketsArray);
       });
-      setTickets(ticketsArray);
-    });
-  }, []);
+    }
+  }, [userCompId]); 
 
   const handleTicketClick = (ticketId) => {
     setModalOpen(true);
@@ -111,32 +134,126 @@ const SupportBDashboard = () => {
   };
 
   const handleEscalateTicket = async (ticketId) => {
-    console.log('escalate Here: ' + ticketId)
-    try {
-      const ticketRef = doc(db, 'tickets', ticketId);
-      const ticketDoc = await getDoc(ticketRef)
-      const companyId = ticketDoc.data().companyId
+  console.log('escalate Here: ' + ticketId);
+  setCurrentTicketId(ticketId);
+  setConfirmationModalOpen(true);
+  }; //moved function to onConfirm below
 
+  const confirmEscalation = async () => {
+    if (currentTicketId) {
+      try {
+        const ticketRef = doc(db, 'tickets', currentTicketId);
+        const ticketDoc = await getDoc(ticketRef);
+        const companyId = ticketDoc.data().companyId;
+        console.log("hendleEscalate compId:", companyId)
 
+        // check for support b and c WITHIN the same company
+        const usersRef = collection(db, 'users');
+        const supportCQuery = query(usersRef, where('role', '==', 'supportc'), where('companyId', '==', companyId));
+        const [supportCUsersSnapshot] = await Promise.all([
+          getDocs(supportCQuery)
+        ]);
 
-      await updateDoc(ticketRef, { assignedTo: 'SupportC' });
-    } catch (error) {
-      console.error('Error escalating ticket:', error);
+        // checks if support c are available
+        if (supportCUsersSnapshot.empty) {
+          console.error('No Support C users available.');
+          window.alert("No available Senior Support Agents. Please contact your supervisor for assistance.")
+        } else {
+          await updateDoc(ticketRef, { assignedTo: 'SupportC', claimed: "" }); 
+          console.log(`escalated to SupportC`);
+        }
+      } catch (error) {
+        console.error('Error escalating ticket:', error);
+      }
     }
-  }
+    setConfirmationModalOpen(false);
+  };
 
+  const handleClaimTicket = async (ticketId) => {
+    const ticketRef = doc(db, 'tickets', ticketId);
+    try {
+      await updateDoc(ticketRef, { claimed: userId });
+      console.log(`Ticket ${ticketId} claimed by user ${userId}`);
+    } catch (error) {
+      console.error('Error claiming ticket:', error);
+    }
+  };
+  const myTickets = tickets.filter(ticket => ticket.claimed === userId && ticket.status !== 'closed');
+  const unclaimedTickets = tickets.filter(ticket => ticket.claimed === "" && ticket.status !== 'closed');
+  const closedTickets = tickets.filter(ticket => ticket.status === 'closed');
 
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-header">Support B Dashboard</h1>
       <div className="tickets-container">
-        <Tickets
-          tickets={tickets}
-          onTicketClick={handleTicketClick}
-          onCloseTicket={handleCloseTicket}
-          onEscalateTicket={handleEscalateTicket}
-          selectedTicket={selectedTicket}
-          role='support'
+        <div className="tabs">
+            <button onClick={() => setActiveTab('claimed')} className={activeTab === 'claimed' ? 'active-tab' : ''}>
+                Claimed Tickets
+            </button>
+            <button onClick={() => setActiveTab('unclaimed')} className={activeTab === 'unclaimed' ? 'active-tab' : ''}>
+                Unclaimed Tickets
+            </button>
+            <button onClick={() => setActiveTab('closed')} className={activeTab === 'closed' ? 'active-tab' : ''}>
+                Closed Tickets
+            </button>
+            <button onClick={() => setActiveTab('search')} className={activeTab === 'search' ? 'active-tab' : ''}>
+                Search Tickets
+            </button> 
+        </div>
+
+        {activeTab === 'claimed' && (
+            <div className="claimed-tickets-container">
+                <h2 className="tickets-header">My Tickets</h2>
+                <Tickets
+                    tickets={myTickets}
+                    onTicketClick={handleTicketClick}
+                    onCloseTicket={handleCloseTicket}
+                    onEscalateTicket={handleEscalateTicket}
+                    onAssignTicket={handleClaimTicket}
+                    selectedTicket={selectedTicket}
+                    role='support'
+                    userId = {userId}
+                />
+            </div>
+        )}
+        {activeTab === 'unclaimed' && (
+            <div className="unclaimed-tickets-container">
+                <h2 className="tickets-header">Unclaimed Tickets</h2>
+                <Tickets
+                    tickets={unclaimedTickets}
+                    onTicketClick={handleTicketClick}
+                    onCloseTicket={handleCloseTicket}
+                    onEscalateTicket={handleEscalateTicket}
+                    onAssignTicket={handleClaimTicket}
+                    selectedTicket={selectedTicket}
+                    role='support'
+                    userId = {userId}
+                />
+            </div>
+        )}
+        {activeTab === 'closed' && (
+            <div className="closed-tickets-container">
+                <h2 className="tickets-header">Closed Tickets</h2>
+                <Tickets
+                    tickets={closedTickets}
+                    onTicketClick={handleTicketClick}
+                    selectedTicket={selectedTicket}
+                    role='support'
+                    userId = {userId}
+                />
+            </div>
+        )}
+        {activeTab === 'search' && (
+            <div className="search-tickets-container">
+                <h2 className="tickets-header">Search Tickets</h2>      {/* search function goes in here, make sure changes reflect in A/B/C (sorry...) */}
+            </div>
+        )}
+
+        <AlertModal
+          isOpen={isConfirmationModalOpen}
+          onClose={() => setConfirmationModalOpen(false)}
+          onConfirm={confirmEscalation}
+          message="Are you sure you want to escalate this ticket?"
         />
       </div>
       

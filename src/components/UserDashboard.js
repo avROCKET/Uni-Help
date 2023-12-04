@@ -20,6 +20,7 @@ const UserDashboard = () => {
   const [userRole, setUserRole] = useState(null);
   const [userName, setUserName] = useState(null);
   const { ticketNumber, error } = useTicketGenerator()  
+  const [activeTab, setActiveTab] = useState('submit')
 
 
   const fetchTicketsAndListenForUpdates = () => {
@@ -162,6 +163,7 @@ useEffect(() => {
         created: new Date(),
         isVisible: true,
         ticketNumber: ticketNumber,
+        claimed: "",
         year: new Date().getFullYear(),
         //more data to be added to future revisions: name
       };
@@ -223,6 +225,15 @@ useEffect(() => {
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-title">User Dashboard</h1>
+        <div className="tabs">
+            <button onClick={() => setActiveTab('submit')} className={activeTab === 'submit' ? 'active-tab' : ''}>
+                Submit A Ticket
+            </button>
+            <button onClick={() => setActiveTab('history')} className={activeTab === 'history' ? 'active-tab' : ''}>
+                My Tickets
+            </button>
+          </div>
+      {activeTab === 'submit' && (
       <div className="dashboard-content">
         <form className="ticket-form" onSubmit={handleSubmit}>
           <div className="form-group">
@@ -251,7 +262,10 @@ useEffect(() => {
           <button className="material-button" type="submit">Submit Ticket</button>
           </div>
         </form>
-        
+      </div>
+      )}
+      {activeTab === 'history' && (
+      <div className="dashboard-content">
         <Tickets
           tickets={tickets}
           onTicketClick={handleTicketClick}
@@ -261,6 +275,7 @@ useEffect(() => {
           role='user'
         />
       </div>
+      )}
       
       <ChatModal // using chatmodal for users and support. reviewers can only view chats so they will use regual modal screen, which i will update later 
         isOpen={isModalOpen}
