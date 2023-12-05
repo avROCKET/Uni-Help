@@ -6,6 +6,7 @@ import { register } from '../utils/authFunctions.js';
 function CompanyDashboard() {
   const { user, userData } = useContext(AuthContext);
   const [employees, setEmployees] = useState([]);
+  const [activeTab, setActiveTab] = useState('create') 
 
   useEffect(() => {
     if (user) {
@@ -39,48 +40,59 @@ function CompanyDashboard() {
 
   return (
     <div className='dashboard-container'>
-      <h1>Company Dashboard</h1>
-      <p>Company ID: {userData.uid}</p>
-      <form onSubmit={handleSubmit}>
-        <input className='form-control'
-          type="text" 
-          name="name" 
-          placeholder="Name" 
-          value={formState.name} 
-          onChange={handleInputChange} 
-        />
-        <input className='form-control'
-          type="email" 
-          name="email" 
-          placeholder="Email" 
-          value={formState.email} 
-          onChange={handleInputChange} 
-        />
-        <input className='form-control'
-          type="password" 
-          name="password" 
-          placeholder="Password" 
-          value={formState.password} 
-          onChange={handleInputChange} 
-        />
-        <select className='form-control-review'
-          name="role" 
-          value={formState.role} 
-          onChange={handleInputChange}
-        >
-          <option value="supporta">Support Level 1</option>
-          <option value="supportb">Support Level 2</option>
-          <option value="supportc">Support Level 3</option>
-          <option value="reviewer">Reviewer</option>
-        </select>
-        <button className='material-button' type="submit">Create Employee Profile</button>
-      </form>
+      <div className="tabs">
+          <button onClick={() => setActiveTab('create')} className={activeTab === 'create' ? 'active-tab' : ''}>
+              Create an Employee Account
+          </button>
+          <button onClick={() => setActiveTab('employee')} className={activeTab === 'employee' ? 'active-tab' : ''}>
+              My Employees
+          </button>
+      </div>
+      {activeTab === 'create' && (
+      <div>
+      <h1>Company Dashboard</h1><p>Company ID: {userData.uid}</p><form onSubmit={handleSubmit}>
+          <input className='form-control'
+            type="text"
+            name="name"
+            placeholder="Name"
+            value={formState.name}
+            onChange={handleInputChange} />
+          <input className='form-control'
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formState.email}
+            onChange={handleInputChange} />
+          <input className='form-control'
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formState.password}
+            onChange={handleInputChange} />
+          <select className='form-control-review'
+            name="role"
+            value={formState.role}
+            onChange={handleInputChange}
+          >
+            <option value="supporta">Support Level 1</option>
+            <option value="supportb">Support Level 2</option>
+            <option value="supportc">Support Level 3</option>
+            <option value="reviewer">Reviewer</option>
+          </select>
+          <button className='material-button' type="submit">Create Employee Profile</button>
+        </form>
+        </div>
+      )}
+    {activeTab === 'employee' && (
+      <div>
       <h2>Employee List</h2>
-    <ul>
-      {employees.map(employee => (
-        <li key={employee.id}>{employee.name} ({employee.role})</li>
-      ))}
-    </ul>
+        <ul>
+          {employees.map(employee => (
+            <li key={employee.id}>{employee.name} ({employee.role})</li>
+          ))}
+        </ul>
+    </div>
+    )}
     </div>
   );
 }

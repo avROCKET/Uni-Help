@@ -4,6 +4,7 @@ import { getPendingApprovals, getAllUsers, updateUserRole, deleteUser } from '..
 function AdminDashboard() {
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
+  const [activeTab, setActiveTab] = useState('pending')
 
   const fetchPendingApprovals = async () => {
     try {
@@ -63,28 +64,68 @@ function AdminDashboard() {
 
   return (
     <div className='dashboard-container'>
-      <h1>Admin Dashboard works</h1>
-
-      <h2>Pending Approvals</h2>
-      {pendingApprovals.map((approval, index) => (
-        <div key={index}>
-          <p>{approval.name} - {approval.email} <button onClick={() => handleApprove(approval)}>Approve</button></p>
-          <button onClick={() => handleApprove(approval)}>Approve</button>
-          <button onClick={() => handleReject(approval)}>Reject</button>
+      <h1>Admin Dashboard</h1>
+      <div className="tabs">
+          <button onClick={() => setActiveTab('pending')} className={activeTab === 'pending' ? 'active-tab' : ''}>
+              Pending Approvals
+          </button>
+          <button onClick={() => setActiveTab('active')} className={activeTab === 'active' ? 'active-tab' : ''}>
+              All Users
+          </button>
+          <button onClick={() => setActiveTab('reject')} className={activeTab === 'reject' ? 'active-tab' : ''}>
+              Rejected Users
+          </button>
+      </div>
+      {activeTab === 'pending' && (
+        <div>
+          <h2>Pending Approvals</h2>
+          {pendingApprovals.map((approval, index) => (
+            <div key={index}>
+              <p>
+                <button onClick={() => handleApprove(approval)}>Approve</button>&nbsp;
+                <button onClick={() => handleReject(approval)}>Reject</button>&nbsp;&nbsp;
+                {approval.name} --- {approval.email} 
+              </p>
+            </div>
+          ))}
         </div>
-      ))}
-
-      <h2>All Users</h2>
+      )}
+      {activeTab === 'active' && (
+        <div>
+          <h2>All Active Users</h2>
+          {allUsers
+          .filter(user => user.role !== 'admin')
+          .filter(user => user.role !== 'pending')
+          .filter(user =>user.role !== 'rejected')
+          .map((user, index) => (
+            <div key={index}>
+              <p>
+                <button onClick={() => handleDelete(user)}>Delete</button> &nbsp;&nbsp;
+                {user.name} --- {user.email} --- {user.role}
+              </p>
+          </div>
+        ))}
+        </div>
+    )}
+  
+  {activeTab === 'reject' && (
+    <div>
+      <h2>Rejected Users</h2>
       {allUsers
-      .filter(user => user.role !== 'admin')
-      .filter(user => user.role !== 'pending')
+      .filter(user => user.role === 'rejected')
       .map((user, index) => (
         <div key={index}>
-          <p>{user.name} - {user.email} - {user.role}</p>
-          <button onClick={() => handleDelete(user)}>Delete</button>
+          <p>
+            <button onClick={() => handleDelete(user)}>Delete</button> &nbsp;&nbsp;
+            {user.name} --- {user.email} --- {user.role}
+          </p>
+        </div>
+      ))}
     </div>
-))}
+  )}
+
     </div>
+
   );
 }
 

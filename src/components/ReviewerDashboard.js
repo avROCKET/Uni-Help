@@ -15,6 +15,7 @@ const ReviewerDashboard = () => {
   const [activeChatMessages, setActiveChatMessages] = useState([]);
   const [role, setRole] = useState(null);
   const [selectedTicketData, setSelectedTicketData] = useState(null);
+  // eslint-disable-next-line
   const [userId, setUserId] = useState(null);
 
 
