@@ -9,6 +9,7 @@ const db = getFirestore();
 
 const SupportBDashboard = () => {
   const [tickets, setTickets] = useState([]);
+  const [compTickets, setCompTickets] = useState([]);
   const [activeChatMessages, setActiveChatMessages] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -20,6 +21,7 @@ const SupportBDashboard = () => {
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [currentTicketId, setCurrentTicketId] = useState(null);
   const [activeTab, setActiveTab] = useState('claimed');
+  const [searchID, setSearchID] = useState(null);
 
   useEffect(() => {
     const auth = getAuth();
@@ -178,6 +180,28 @@ const SupportBDashboard = () => {
       console.error('Error claiming ticket:', error);
     }
   };
+
+  const handleSearchChange = (e) => {
+    setSearchID(e.target.value)
+  }
+
+  const handleSearch = async (theId) => {
+    const compTicketsQuery = query(
+      collection(db, 'tickets'), 
+      where('ticketNumber', '==', theId),
+      where('companyId', '==', userCompId),
+    );
+    console.log(" user companyID:", userCompId)
+
+    onSnapshot(compTicketsQuery, (querySnapshot) => {
+      const compTicketsArray = [];
+      querySnapshot.forEach((doc) => {
+        compTicketsArray.push({ id: doc.id, ...doc.data() });
+      });
+      setCompTickets(compTicketsArray);
+    });
+  }
+
   const myTickets = tickets.filter(ticket => ticket.claimed === userId && ticket.status !== 'closed');
   const unclaimedTickets = tickets.filter(ticket => ticket.claimed === "" && ticket.status !== 'closed');
   const closedTickets = tickets.filter(ticket => ticket.status === 'closed');
@@ -246,6 +270,18 @@ const SupportBDashboard = () => {
         {activeTab === 'search' && (
             <div className="search-tickets-container">
                 <h2 className="tickets-header">Search Tickets</h2>      {/* search function goes in here, make sure changes reflect in A/B/C (sorry...) */}
+                <input className="search-control" placeholder="Ticket #" type="text" name="search" onChange={handleSearchChange}/>
+                <button className='search-button' onClick={() => handleSearch(searchID)}>Search</button>
+                <Tickets
+                  tickets={compTickets}
+                  role='support'
+                  userId = {userId}
+                  search = {true}
+                  onTicketClick={handleTicketClick}
+                  onCloseTicket={handleCloseTicket}
+                  onEscalateTicket={handleEscalateTicket}
+                  onAssignTicket={handleClaimTicket}
+                />
             </div>
         )}
 
