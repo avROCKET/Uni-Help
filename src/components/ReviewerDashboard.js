@@ -17,6 +17,9 @@ const ReviewerDashboard = () => {
   const [selectedTicketData, setSelectedTicketData] = useState(null);
   // eslint-disable-next-line
   const [userId, setUserId] = useState(null);
+  const [activeTab, setActiveTab] = useState('all')
+  const [compTickets, setCompTickets] = useState([]);
+  const [searchID, setSearchID] = useState(null);
 
 
 
@@ -84,6 +87,27 @@ const ReviewerDashboard = () => {
     setModalOpen(true);
 };
 
+const handleSearch = async (theId) => {
+  const compTicketsQuery = query(
+    collection(db, 'tickets'), 
+    where('ticketNumber', '==', theId),
+    where('companyId', '==', userCompId),
+  );
+  console.log(" user companyID:", userCompId)
+
+  onSnapshot(compTicketsQuery, (querySnapshot) => {
+    const compTicketsArray = [];
+    querySnapshot.forEach((doc) => {
+      compTicketsArray.push({ id: doc.id, ...doc.data() });
+    });
+    setCompTickets(compTicketsArray);
+  });
+}
+
+const handleSearchChange = (e) => {
+  setSearchID(e.target.value)
+}
+
 const handleTicketDelete = async (ticketId) => {
   try {
     const ticketRef = doc(db, 'tickets', ticketId);
@@ -109,6 +133,14 @@ const handleTicketDelete = async (ticketId) => {
 
   return (
     <div className="dashboard-container">
+      <div className="tabs">
+            <button onClick={() => setActiveTab('all')} className={activeTab === 'all' ? 'active-tab' : ''}>
+                All Tickets
+            </button>
+            <button onClick={() => setActiveTab('search')} className={activeTab === 'search' ? 'active-tab' : ''}>
+                Search Tickets
+            </button>
+      </div>
       <h1>Reviewer Dashboard</h1>
       <select className="form-control-review" value={selectedSupportLevel} onChange={e => setSelectedSupportLevel(e.target.value)}>
         <option value="SupportA">Support A</option>
@@ -116,6 +148,7 @@ const handleTicketDelete = async (ticketId) => {
         <option value="SupportC">Support C</option>
         <option value="">Remove Assignment</option>
       </select>
+      {activeTab === 'all' && (
       <Tickets
           tickets={tickets}
           onTicketClick={handleTicketClick}
@@ -123,6 +156,24 @@ const handleTicketDelete = async (ticketId) => {
           onTicketDelete={handleTicketDelete}
           role={role}
       />
+      )}
+      {activeTab === 'search' && (
+      <div className="search-tickets-container">
+        <h2 className="tickets-header">Search Tickets</h2>      {/* search function goes in here, make sure changes reflect in A/B/C (sorry...) */}
+          <input className="search-control" placeholder="Ticket #" type="text" name="search" onChange={handleSearchChange}/>
+          <button className='search-button' onClick={() => handleSearch(searchID)}>Search</button>
+        <Tickets
+          tickets={compTickets}
+          role='support'
+          onTicketClick={handleTicketClick}
+          onCloseTicket={handleCloseTicket}
+          onAssignTicket={handleClaimTicket}
+          userId = {userId}
+          search = {true}
+        />
+        </div>
+      )}
+
       <ChatModal 
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
