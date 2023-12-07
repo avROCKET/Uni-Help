@@ -233,7 +233,7 @@ const SupportADashboard = () => {
 
         {activeTab === 'claimed' && (
             <div className="claimed-tickets-container">
-                <h2 className="tickets-header">My Tickets</h2>
+                <h2 className="tickets-header">My Workqueue</h2>
                 <Tickets
                     tickets={myTickets}
                     onTicketClick={handleTicketClick}
