@@ -20,6 +20,9 @@ const ReviewerDashboard = () => {
   const [activeTab, setActiveTab] = useState('all')
   const [compTickets, setCompTickets] = useState([]);
   const [searchID, setSearchID] = useState(null);
+  // eslint-disable-next-line
+  const [userCompId, setUserCompId] = useState(null);
+
 
 
 
@@ -166,8 +169,8 @@ const handleTicketDelete = async (ticketId) => {
           tickets={compTickets}
           role='support'
           onTicketClick={handleTicketClick}
-          onCloseTicket={handleCloseTicket}
-          onAssignTicket={handleClaimTicket}
+          onAssignTicket={handleAssignTicket}
+          onTicketDelete={handleTicketDelete}
           userId = {userId}
           search = {true}
         />
