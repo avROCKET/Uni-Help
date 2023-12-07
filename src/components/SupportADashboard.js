@@ -283,7 +283,6 @@ const SupportADashboard = () => {
                   role='support'
                   onTicketClick={handleTicketClick}
                   onCloseTicket={handleCloseTicket}
-                  onEscalateTicket={handleEscalateTicket}
                   onAssignTicket={handleClaimTicket}
                   userId = {userId}
                   search = {true}

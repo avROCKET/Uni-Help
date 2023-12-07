@@ -24,7 +24,7 @@ const Tickets = ({ tickets, onTicketClick, onAssignTicket, onCloseTicket, onTick
                         <td onClick={() => onTicketClick(ticket.id)}><b>{ticket.ticketNumber}</b></td>
                         <td onClick={() => onTicketClick(ticket.id)}>{ticket.subject}</td>
                         <td onClick={() => onTicketClick(ticket.id)}>{ticket.status}</td>
-                        {!support && <td onClick={() => onTicketClick(ticket.id)}>{user && ticket.assignedTo}</td>}
+                        {<td onClick={() => onTicketClick(ticket.id)}>{user && ticket.assignedTo}</td>}
                         
                         <td>
                             {ticket.status !== 'closed' && onCloseTicket && <button className="ticket-button" onClick={() => onCloseTicket(ticket.id)}>&nbsp;Close</button>}

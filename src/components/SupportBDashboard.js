@@ -279,7 +279,6 @@ const SupportBDashboard = () => {
                   search = {true}
                   onTicketClick={handleTicketClick}
                   onCloseTicket={handleCloseTicket}
-                  onEscalateTicket={handleEscalateTicket}
                   onAssignTicket={handleClaimTicket}
                 />
             </div>
