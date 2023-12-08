@@ -20,7 +20,6 @@ const ReviewerDashboard = () => {
   const [activeTab, setActiveTab] = useState('all')
   const [compTickets, setCompTickets] = useState([]);
   const [searchID, setSearchID] = useState(null);
-  // eslint-disable-next-line
   const [userCompId, setUserCompId] = useState(null);
 
 
@@ -38,6 +37,7 @@ const ReviewerDashboard = () => {
   }, []);
 
 
+
   useEffect(() => {
     if (currentUser) {
       const userRef = doc(db, 'users', currentUser.uid);
@@ -45,9 +45,9 @@ const ReviewerDashboard = () => {
         if (docSnapshot.exists()) {
           const userData = docSnapshot.data();
           setRole(userData.role);
-          const userCompanyId = userData.companyId;
+          setUserCompId(userData.companyId);
 
-          const ticketsQuery = query(collection(db, 'tickets'), where('companyId', '==', userCompanyId));
+          const ticketsQuery = query(collection(db, 'tickets'), where('companyId', '==', userCompId));
           onSnapshot(ticketsQuery, (querySnapshot) => {
             const ticketsArray = [];
             querySnapshot.forEach((doc) => {
@@ -71,7 +71,7 @@ const ReviewerDashboard = () => {
 
   const handleTicketClick = (ticketId) => {
 
-    const selectedTicketDetails = tickets.find(ticket => ticket.id === ticketId); //UPDATE: this gets all ticket data, ordered by timestamp.
+    const selectedTicketDetails = tickets.find(ticket => ticket.id === ticketId); //UPDATE: this gets all ticket messages, ordered by timestamp.
     setSelectedTicketData(selectedTicketDetails);
     const messagesQuery = query(
       collection(doc(db, 'tickets', ticketId), 'messages'), 
@@ -136,6 +136,7 @@ const handleTicketDelete = async (ticketId) => {
 
   return (
     <div className="dashboard-container">
+      <h1>Reviewer Dashboard</h1>
       <div className="tabs">
             <button onClick={() => setActiveTab('all')} className={activeTab === 'all' ? 'active-tab' : ''}>
                 All Tickets
@@ -144,7 +145,6 @@ const handleTicketDelete = async (ticketId) => {
                 Search Tickets
             </button>
       </div>
-      <h1>Reviewer Dashboard</h1>
       <select className="form-control-review" value={selectedSupportLevel} onChange={e => setSelectedSupportLevel(e.target.value)}>
         <option value="SupportA">Support A</option>
         <option value="SupportB">Support B</option>
