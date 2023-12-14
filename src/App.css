@@ -626,3 +626,13 @@
 .search-button:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
+
+.animation-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw; 
+  height: 100vh; 
+  width: 200px; 
+  height: 200px; 
+}
