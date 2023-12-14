@@ -1,6 +1,8 @@
 import React, { createContext, useState, useEffect } from "react";
 import { auth } from '../firebase.js'; 
 import { getUserData } from '../utils/dataFunctions.js'; 
+import LoadingScreen from './LoadingScreen';
+import animationData from '../../public/assets/loading.json';
 
 export const AuthContext = createContext();
 
@@ -31,7 +33,7 @@ function AuthProvider({ children }) {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingScreen animationData={animationData}/>;
   }
 
   return (
