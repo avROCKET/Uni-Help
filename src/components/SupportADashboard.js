@@ -24,6 +24,7 @@ const SupportADashboard = () => {
   const [searchID, setSearchID] = useState(null);
 
 
+  //necessary data pulled from database for the messaging functionality, mainly the nametags.
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -43,7 +44,7 @@ const SupportADashboard = () => {
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribe(); //removes firebase auth event listener
   }, []);
   
   const fetchUserRole = async (userId) => {
@@ -67,6 +68,7 @@ const SupportADashboard = () => {
     return userDoc.data().companyId;
   };
 
+  //queries tickets ONLY for Support A of the specified company.
   useEffect(() => {
     if (userCompId) {
       const ticketsQuery = query(

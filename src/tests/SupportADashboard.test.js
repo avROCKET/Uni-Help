@@ -4,25 +4,26 @@ import '@testing-library/jest-dom';
 import Tickets from '../components/Tickets';
 
 describe('Tickets Component', () => {
-  it('displays assigned and unassigned tickets for reviewer role', () => {
-    const mockTickets = [{ /* ...mock ticket data... */ }];
-    render(<Tickets tickets={mockTickets} role="reviewer" />);
+  it('displays the dashboard for reviewer role', () => {
+    const mockTickets = [{ }];
+    render(<Tickets tickets={mockTickets} role="reviewer" />); //adds role "reviewer" to mockTickets
 
     expect(screen.getByText('Assigned Tickets')).toBeInTheDocument();
     expect(screen.getByText('Unassigned Tickets')).toBeInTheDocument();
   });
 
-  it('displays inquiries for user role', () => {
-    const mockTickets = [{ /* ...mock ticket data... */ }];
-    render(<Tickets tickets={mockTickets} role="user" />);
+  it('displays the dashboard for user role', () => {
+    const mockTickets = [{ }];
+    render(<Tickets tickets={mockTickets} role="user" />); //adds role "user" to mockTickets
 
     expect(screen.getByText('My Inquiries')).toBeInTheDocument();
   });
 
-  it('renders tickets for support role without specific headers', () => {
-    const mockTickets = [{ /* ...mock ticket data... */ }];
+  it('renderTickets function displays the correct elements for support role', () => {
+    const mockTickets = [{ userId: 1, ticketNumber: '123', subject: 'Test Subject', status: 'open' }];
     render(<Tickets tickets={mockTickets} role="support" />);
-    
-    expect(screen.queryByText('My Workqueue')).toBeInTheDocument();
+
+    expect(screen.getByText('123')).toBeInTheDocument();
+    expect(screen.getByText('Test Subject')).toBeInTheDocument();
   });
 });
