@@ -628,11 +628,11 @@
 }
 
 .animation-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100vw; 
-  height: 100vh; 
-  width: 200px; 
-  height: 200px; 
+  position: absolute;
+  left: 50%; 
+  top: 50%; 
+  transform: translate(-50%, -50%);
+  width: 500px; 
+  height: 500px; 
 }
+
