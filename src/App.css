@@ -611,10 +611,12 @@
   border-radius: 4px;
   box-sizing: border-box;
   resize: vertical;
+  margin-bottom: 10px;
+  margin-left: 10px;
 }
 .search-button {
   padding: 5px 10px;
-  margin-left: 10px;
+  margin-left: 20px;
   border: none;
   border-radius: 5px;
   cursor: pointer;

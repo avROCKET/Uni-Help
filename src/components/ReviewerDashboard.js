@@ -122,9 +122,9 @@ const handleTicketDelete = async (ticketId) => {
       // this will check if the tickets are assigned. 
       if (!ticketData.assignedTo || ticketData.assignedTo === '') {
         await deleteDoc(ticketRef);
-        console.log('Ticket deleted successfully');
+        console.log('Ticket deleted');
       } else {
-        console.log('Error.');
+        console.log('Error related to ticket deleting');
       }
     } else {
       console.log('Ticket not found');
