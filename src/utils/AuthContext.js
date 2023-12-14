@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect } from "react";
 import { auth } from '../firebase.js'; 
 import { getUserData } from '../utils/dataFunctions.js'; 
 import LoadingScreen from './LoadingScreen';
-import animationData from '../../public/assets/loading.json';
+import animationData from './loading.json';
 
 export const AuthContext = createContext();
 
