@@ -21,6 +21,8 @@ const ReviewerDashboard = () => {
   const [compTickets, setCompTickets] = useState([]);
   const [searchID, setSearchID] = useState(null);
   const [userCompId, setUserCompId] = useState(null);
+  const [searchUserCompId, setSearchUserCompId] = useState(null);
+
 
 
 
@@ -45,9 +47,11 @@ const ReviewerDashboard = () => {
         if (docSnapshot.exists()) {
           const userData = docSnapshot.data();
           setRole(userData.role);
-          setUserCompId(userData.companyId);
+          const userCompanyId = userData.companyId;
+          setSearchUserCompId(userData.companyId);
 
-          const ticketsQuery = query(collection(db, 'tickets'), where('companyId', '==', userCompId));
+
+           const ticketsQuery = query(collection(db, 'tickets'), where('companyId', '==', userCompanyId));
           onSnapshot(ticketsQuery, (querySnapshot) => {
             const ticketsArray = [];
             querySnapshot.forEach((doc) => {
@@ -94,9 +98,9 @@ const handleSearch = async (theId) => {
   const compTicketsQuery = query(
     collection(db, 'tickets'), 
     where('ticketNumber', '==', theId),
-    where('companyId', '==', userCompId),
+    where('companyId', '==', searchUserCompId),
   );
-  console.log(" user companyID:", userCompId)
+  console.log(" user companyID:", searchUserCompId)
 
   onSnapshot(compTicketsQuery, (querySnapshot) => {
     const compTicketsArray = [];
