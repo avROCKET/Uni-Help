@@ -16,7 +16,7 @@ const LoadingScreen = ({ animationData }) => {
     return () => anim.destroy();
   }, [animationData]);
 
-  return <div ref={animationContainer}></div>;
+  return <div ref={animationContainer} className="animation-container"></div>;
 };
 
 export default LoadingScreen;
